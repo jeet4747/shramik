@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Hammer, User, Briefcase, BarChart3, Home, Search, PlusCircle, Users, CheckCircle2, 
   MapPin, Clock, IndianRupee, LogOut, Menu, X, ArrowRight, ShieldCheck, MessageCircle,
-  Filter, Bell, ChevronRight, Star, TrendingUp, Building2, Eye, Trash2, Check, ExternalLink
+  Filter, Bell, ChevronRight, Star, TrendingUp, Building2, Eye, Trash2, Check, ExternalLink,
+  Download, Smartphone, Shield
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell 
@@ -46,116 +47,160 @@ const StatCard = ({ title, value, icon: Icon, trend }) => (
 
 // --- SCREEN: LANDING PAGE ---
 
-const LandingPage = ({ onSelect, onLogin }) => (
-  <div className="min-h-screen bg-slate-50 font-sans selection:bg-saffron/30">
+const LandingPage = ({ onSelect, onLogin }) => {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      setDeferredPrompt(null);
+    } else {
+      alert("ShramSetu can be installed from your browser menu (Add to Home Screen).");
+    }
+  };
+
+  return (
+  <div className="min-h-screen bg-[#f8f9fa] font-sans selection:bg-saffron/30">
+    {/* Government/Official Top Bar */}
+    <div className="bg-[#0f2b5b] text-white py-1.5 px-6 text-xs md:text-sm font-medium flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div className="flex items-center gap-3 opacity-90">
+        <span className="flex items-center gap-1.5"><Shield size={14} className="text-saffron" /> An Initiative for the National Workforce</span>
+      </div>
+      <div className="flex items-center gap-4 opacity-80 font-semibold tracking-wider uppercase text-[10px] md:text-xs">
+        <span>Skill India Compliant</span>
+        <span className="hidden sm:inline">|</span>
+        <span>Aadhaar Verified Network</span>
+      </div>
+    </div>
+
     {/* Header */}
-    <header className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 py-4 flex justify-between items-center z-50">
+    <header className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-4 flex flex-wrap justify-between items-center z-50 shadow-sm">
       <Wordmark />
-      <div className="flex items-center gap-2 md:gap-4">
-        <button onClick={onLogin} className="text-navy font-semibold hover:text-saffron transition-colors px-3 py-2 text-sm md:text-base">Log In</button>
-        <button onClick={onLogin} className="bg-navy text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:bg-navy-light transition-all active:scale-95 text-sm md:text-base">Sign Up</button>
+      <div className="flex flex-wrap items-center gap-3 md:gap-5 mt-4 sm:mt-0">
+        <button onClick={handleInstallClick} className="hidden md:flex items-center gap-2 text-slate-600 font-bold hover:text-navy transition-colors px-3 py-2 text-sm bg-slate-100 rounded-lg border border-slate-200">
+          <Download size={16} /> Install App
+        </button>
+        <button onClick={onLogin} className="text-navy font-bold hover:text-saffron transition-colors px-3 py-2 text-sm md:text-base">Log In</button>
+        <button onClick={onLogin} className="bg-gradient-to-r from-[#0f2b5b] to-[#1a3c6e] text-white px-6 py-2 rounded-lg font-bold shadow-md hover:shadow-lg transition-all active:scale-95 text-sm md:text-base border border-[#0f2b5b]">Register Now</button>
       </div>
     </header>
 
     {/* Hero Section */}
-    <section className="relative overflow-hidden px-6 py-20 md:py-32 flex flex-col items-center text-center max-w-5xl mx-auto">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-saffron/5 rounded-full blur-3xl -z-10"></div>
+    <section className="relative overflow-hidden px-6 py-20 md:py-32 flex flex-col items-center text-center max-w-6xl mx-auto">
+      <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-saffron/10 via-transparent to-transparent -z-10"></div>
       
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-navy/5 text-navy rounded-full font-bold text-xs uppercase tracking-wider mb-8 border border-navy/10">
-        <span className="w-2 h-2 rounded-full bg-saffron animate-pulse"></span>
-        Organizing India's Workforce
+      <div className="inline-flex items-center gap-2 px-5 py-2 bg-green-50 text-green-700 rounded-full font-bold text-xs uppercase tracking-widest mb-8 border border-green-200 shadow-sm">
+        <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+        National Pilot Now Live in Nashik
       </div>
       
-      <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight">
-        A Worker-First Platform for <br className="hidden md:block" />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-navy to-saffron">Blue-Collar India</span>
+      <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-[#0f2b5b] leading-[1.15] mb-8 tracking-tight">
+        Empowering India's <br className="hidden md:block" />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f97316] to-[#d95d12]">Unorganized Sector</span>
       </h1>
       
-      <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mb-10 leading-relaxed font-light">
-        Connecting skilled electricians, plumbers, carpenters, and helpers with real opportunities. Faster, transparent, and built for the ground reality.
+      <p className="text-lg md:text-2xl text-slate-600 max-w-4xl mb-12 leading-relaxed font-medium">
+        A unified, secure, and transparent digital ecosystem connecting skilled workers with verified employment opportunities. Eradicating exploitation and ensuring financial inclusion for the blue-collar workforce.
       </p>
       
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-        <button onClick={() => document.getElementById('roles').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-navy text-white rounded-full font-semibold text-lg shadow-xl shadow-navy/20 hover:bg-navy-light transition-all transform hover:-translate-y-0.5">Explore the Platform</button>
-        <button onClick={() => document.getElementById('manifesto').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-white text-navy border border-slate-200 rounded-full font-semibold text-lg hover:border-navy/30 hover:bg-slate-50 transition-all">Read Our Manifesto</button>
+        <button onClick={() => document.getElementById('roles').scrollIntoView({ behavior: 'smooth' })} className="px-10 py-4 bg-[#0f2b5b] text-white rounded-lg font-bold text-lg shadow-xl shadow-navy/20 hover:bg-navy transition-all transform hover:-translate-y-0.5 border border-transparent">
+          Access the Portal
+        </button>
+        <button onClick={handleInstallClick} className="px-10 py-4 bg-white text-[#0f2b5b] border-2 border-[#0f2b5b] rounded-lg font-bold text-lg hover:bg-slate-50 transition-all flex items-center justify-center gap-3">
+          <Download size={20} /> Install Web Application
+        </button>
+      </div>
+
+      <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-slate-200 w-full max-w-4xl opacity-80">
+         <div className="flex flex-col items-center">
+            <h4 className="text-3xl font-black text-[#0f2b5b]">1.2M+</h4>
+            <p className="text-xs uppercase font-bold text-slate-500 tracking-wider">Target Workers</p>
+         </div>
+         <div className="flex flex-col items-center">
+            <h4 className="text-3xl font-black text-[#0f2b5b]">₹0</h4>
+            <p className="text-xs uppercase font-bold text-slate-500 tracking-wider">Commission Taken</p>
+         </div>
+         <div className="flex flex-col items-center">
+            <h4 className="text-3xl font-black text-[#0f2b5b]">100%</h4>
+            <p className="text-xs uppercase font-bold text-slate-500 tracking-wider">Aadhaar Verified</p>
+         </div>
+         <div className="flex flex-col items-center">
+            <h4 className="text-3xl font-black text-[#0f2b5b]">24/7</h4>
+            <p className="text-xs uppercase font-bold text-slate-500 tracking-wider">Support Grid</p>
+         </div>
       </div>
     </section>
 
-    {/* The Problem & Solution (Manifesto) */}
-    <section id="manifesto" className="py-24 bg-white border-y border-slate-100">
+    {/* The Problem & Solution Framework */}
+    <section id="manifesto" className="py-24 bg-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-16 lg:gap-24 items-start">
-          {/* Problem */}
-          <div className="space-y-6 p-8 bg-slate-50 rounded-3xl border border-slate-100">
-            <div className="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mb-8 shadow-inner">
-              <TrendingUp className="rotate-180" size={28} />
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2b5b] tracking-tight">The Operational Framework</h2>
+          <div className="w-24 h-1 bg-saffron mx-auto mt-6 rounded-full"></div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-start">
+          {/* Current State */}
+          <div className="space-y-6 p-10 bg-[#fafafa] rounded-2xl border border-slate-200">
+            <div className="flex items-center gap-4 mb-8">
+               <div className="w-12 h-12 bg-slate-200 text-slate-600 rounded-xl flex items-center justify-center">
+                 <TrendingUp className="rotate-180" size={24} />
+               </div>
+               <h3 className="text-2xl font-bold text-slate-800">Current Ecosystem</h3>
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">The Problem</h2>
-            <p className="text-slate-600 leading-relaxed text-lg">
-              Millions of skilled workers struggle to find consistent work, relying on unorganized sources like local agents or WhatsApp groups. Businesses similarly struggle to find reliable talent quickly.
+            <p className="text-slate-600 leading-relaxed text-lg font-medium">
+              The existing blue-collar job market operates informally, leading to systemic inefficiencies and lack of social security for workers.
             </p>
-            <ul className="space-y-4 mt-8">
-              {['Unstable daily income', 'Exploitation by middlemen', 'No digital identity or career growth'].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-slate-800 font-medium">
-                  <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0"><X size={14} className="text-red-500" /></div> {item}
+            <ul className="space-y-5 mt-8">
+              {['Fragmented and informal job discovery', 'High exploitation by unauthorized intermediaries', 'Absence of verifiable work history or financial footprint'].map((item, i) => (
+                <li key={i} className="flex items-start gap-4 text-slate-700 font-semibold">
+                  <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 mt-0.5"><X size={14} className="text-slate-500" /></div> 
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Solution */}
-          <div className="space-y-6 p-8 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-bl-full -z-10"></div>
-            <div className="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-8 shadow-inner">
-              <CheckCircle2 size={28} />
+          {/* ShramSetu State */}
+          <div className="space-y-6 p-10 bg-[#0f2b5b] text-white rounded-2xl shadow-2xl shadow-navy/30 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-bl-full -z-10"></div>
+            <div className="flex items-center gap-4 mb-8">
+               <div className="w-12 h-12 bg-white/20 text-white rounded-xl flex items-center justify-center backdrop-blur-sm">
+                 <ShieldCheck size={24} />
+               </div>
+               <h3 className="text-2xl font-bold text-white">ShramSetu Integration</h3>
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">The Solution</h2>
-            <p className="text-slate-600 leading-relaxed text-lg">
-              ShramSetu bridges this gap by creating a structured system where workers are discovered based on skills, and jobs are assigned directly. It operates on a powerful hybrid model.
+            <p className="text-white/80 leading-relaxed text-lg font-medium">
+              A centralized infrastructure that directly connects authenticated workers with verified contractors, ensuring transparency and accountability.
             </p>
-            <ul className="space-y-4 mt-8">
-              {['Direct job access without agents', 'Transparent & fast distribution', 'Works with or without app adoption'].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-slate-800 font-medium">
-                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0"><Check size={14} className="text-green-600" /></div> {item}
+            <ul className="space-y-5 mt-8">
+              {['Direct algorithmic matching based on verified skills', 'Zero-commission model maximizing worker earnings', 'Digital identity generation for future credit access'].map((item, i) => (
+                <li key={i} className="flex items-start gap-4 text-white/90 font-semibold">
+                  <div className="w-6 h-6 rounded-full bg-saffron flex items-center justify-center flex-shrink-0 mt-0.5"><Check size={14} className="text-white" /></div> 
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* Vision & Differentiation */}
-    <section className="py-24 bg-navy text-white relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-full md:w-1/2 h-full bg-gradient-to-l from-saffron/20 to-transparent"></div>
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-      
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="max-w-3xl mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white rounded-full font-bold text-xs uppercase tracking-widest mb-6">
-            The Vision
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Organizing India's workforce, one hand at a time.</h2>
-          <p className="text-xl text-white/80 leading-relaxed font-light">
-            We are building an ecosystem where every worker has access to consistent opportunities, a digital identity, and a clear path for skill and income growth. From unstructured uncertainty to systematic scalability.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-10 border-t border-white/10 pt-16">
-          <div className="group">
-            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-saffron mb-6 group-hover:scale-110 transition-transform"><ShieldCheck size={32} /></div>
-            <h3 className="text-2xl font-bold mb-3">Worker-First</h3>
-            <p className="text-white/60 leading-relaxed">Unlike customer-centric platforms, we optimize entirely for the worker's dignity, earnings, and convenience.</p>
-          </div>
-          <div className="group">
-            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-saffron mb-6 group-hover:scale-110 transition-transform"><Building2 size={32} /></div>
-            <h3 className="text-2xl font-bold mb-3">Real Execution</h3>
-            <p className="text-white/60 leading-relaxed">Built for Indian ground realities. We focus heavily on operations and human relationships, not just software.</p>
-          </div>
-          <div className="group">
-            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-saffron mb-6 group-hover:scale-110 transition-transform"><MapPin size={32} /></div>
-            <h3 className="text-2xl font-bold mb-3">Strategic Launch</h3>
-            <p className="text-white/60 leading-relaxed">Piloting in Nashik with specific trades, ready to scale for high-demand events like the upcoming Kumbh Mela.</p>
           </div>
         </div>
       </div>
@@ -164,74 +209,97 @@ const LandingPage = ({ onSelect, onLogin }) => (
     {/* Role Entry Section */}
     <section id="roles" className="py-24 px-6 max-w-7xl mx-auto w-full">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Experience the Platform</h2>
-        <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-          ShramSetu is not just an app — it is a complete operating system designed to empower India’s workforce. Select a portal below to view the interactive prototype.
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f2b5b] mb-4 tracking-tight">Access Portals</h2>
+        <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+          Select the appropriate secure portal below to enter the ShramSetu network.
         </p>
       </div>
       
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-8">
         <button 
           onClick={() => onSelect('worker')}
-          className="group bg-white p-8 rounded-3xl border border-slate-200 hover:border-saffron shadow-sm hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
+          className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-saffron hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
         >
-          <div className="w-14 h-14 bg-saffron/10 rounded-2xl flex items-center justify-center text-saffron mb-6 group-hover:scale-110 transition-transform">
-            <Hammer size={28} />
+          <div className="absolute top-0 left-0 w-1 h-full bg-saffron"></div>
+          <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-saffron mb-6 group-hover:bg-saffron/10 transition-colors">
+            <Hammer size={26} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-3">Worker Portal</h3>
-          <p className="text-slate-500 mb-8 text-sm leading-relaxed">For electricians, plumbers, and daily wage workers to find verified jobs instantly.</p>
-          <div className="flex items-center gap-2 text-saffron font-bold group-hover:translate-x-1 transition-transform">
-            View Prototype <ArrowRight size={18} />
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Worker / Shramik Portal</h3>
+          <p className="text-slate-500 mb-8 text-sm leading-relaxed font-medium">Secure entry for registered workers to find employment, track earnings, and manage availability.</p>
+          <div className="flex items-center justify-between w-full border-t border-slate-100 pt-4">
+             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Access</span>
+             <ArrowRight size={18} className="text-saffron group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
 
         <button 
           onClick={() => onSelect('contractor')}
-          className="group bg-white p-8 rounded-3xl border border-slate-200 hover:border-navy shadow-sm hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
+          className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-[#0f2b5b] hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
         >
-          <div className="w-14 h-14 bg-navy/10 rounded-2xl flex items-center justify-center text-navy mb-6 group-hover:scale-110 transition-transform">
-            <Briefcase size={28} />
+          <div className="absolute top-0 left-0 w-1 h-full bg-[#0f2b5b]"></div>
+          <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-[#0f2b5b] mb-6 group-hover:bg-navy/10 transition-colors">
+            <Briefcase size={26} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-3">Contractor Portal</h3>
-          <p className="text-slate-500 mb-8 text-sm leading-relaxed">For builders and homeowners to hire reliable, verified manpower without hassle.</p>
-          <div className="flex items-center gap-2 text-navy font-bold group-hover:translate-x-1 transition-transform">
-            View Prototype <ArrowRight size={18} />
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Contractor / Employer Portal</h3>
+          <p className="text-slate-500 mb-8 text-sm leading-relaxed font-medium">Dashboard for verified contractors to post requirements, hire workers, and manage labor compliance.</p>
+          <div className="flex items-center justify-between w-full border-t border-slate-100 pt-4">
+             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Access</span>
+             <ArrowRight size={18} className="text-[#0f2b5b] group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
 
         <button 
           onClick={() => onSelect('admin')}
-          className="group bg-slate-900 p-8 rounded-3xl border border-slate-800 hover:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
+          className="group bg-[#f8f9fa] p-8 rounded-2xl border border-slate-200 hover:border-slate-400 hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
         >
-          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
-            <BarChart3 size={28} />
+          <div className="absolute top-0 left-0 w-1 h-full bg-slate-600"></div>
+          <div className="w-14 h-14 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-700 mb-6 group-hover:bg-slate-200 transition-colors">
+            <BarChart3 size={26} />
           </div>
-          <h3 className="text-2xl font-bold text-white mb-3">Admin Engine</h3>
-          <p className="text-white/60 mb-8 text-sm leading-relaxed">The operational backend for verifications, job matching, and platform analytics.</p>
-          <div className="flex items-center gap-2 text-white font-bold group-hover:translate-x-1 transition-transform">
-            View Prototype <ArrowRight size={18} />
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Central Admin Dashboard</h3>
+          <p className="text-slate-500 mb-8 text-sm leading-relaxed font-medium">Secure oversight interface for platform administrators, identity verification, and national analytics.</p>
+          <div className="flex items-center justify-between w-full border-t border-slate-200 pt-4">
+             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Authorized Only</span>
+             <ArrowRight size={18} className="text-slate-700 group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
       </div>
     </section>
 
     {/* Footer */}
-    <footer className="bg-white border-t border-slate-200 py-16 px-6">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex flex-col items-center md:items-start">
-           <div className="flex items-center gap-2 mb-2">
-             <Hammer size={20} className="text-saffron" />
-             <span className="text-xl font-bold text-navy tracking-tight">ShramSetu</span>
+    <footer className="bg-[#0f2b5b] text-white py-12 px-6 border-t-4 border-saffron">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="flex flex-col items-center md:items-start text-center md:text-left">
+           <div className="flex items-center gap-3 mb-4">
+             <div className="bg-white p-2 rounded-lg">
+                <Hammer size={24} className="text-[#0f2b5b]" />
+             </div>
+             <div>
+               <span className="text-2xl font-black tracking-tight block">ShramSetu</span>
+               <span className="text-xs font-bold uppercase tracking-widest opacity-80 text-saffron">Har Haath Ko Kaam</span>
+             </div>
            </div>
-           <p className="text-slate-500 text-sm font-medium">Har Haath Ko Kaam.</p>
+           <p className="text-white/60 text-sm font-medium max-w-sm leading-relaxed">
+             A technological initiative dedicated to organizing India's informal labor sector, promoting dignity, security, and economic growth.
+           </p>
         </div>
-        <div className="text-slate-400 text-sm font-medium">
-          © 2026 ShramSetu Ecosystem. All rights reserved.
+        
+        <div className="flex flex-col items-center md:items-end gap-4">
+          <div className="flex gap-6 text-sm font-bold opacity-80">
+             <a href="#" className="hover:text-saffron transition-colors">Terms of Service</a>
+             <a href="#" className="hover:text-saffron transition-colors">Privacy Policy</a>
+             <a href="#" className="hover:text-saffron transition-colors">Verification Guidelines</a>
+          </div>
+          <div className="text-white/40 text-xs font-semibold">
+            © 2026 ShramSetu Platform Initiative. All rights reserved.
+          </div>
         </div>
       </div>
     </footer>
   </div>
-);
+  );
+};
+
 
 // --- MAIN APP COMPONENT ---
 

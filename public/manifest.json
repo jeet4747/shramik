@@ -1,0 +1,21 @@
+{
+  "name": "ShramSetu - Har Haath Ko Kaam",
+  "short_name": "ShramSetu",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a3c6e",
+  "description": "An initiative for the empowerment of India's blue-collar workforce.",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
