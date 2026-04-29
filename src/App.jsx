@@ -50,6 +50,64 @@ const StatCard = ({ title, value, icon: Icon, trend }) => (
   </div>
 );
 
+const JobApplications = ({ jobId, supabase, addToast, onJobUpdated }) => {
+  const [applications, setApplications] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from('job_applications')
+        .select('*, users(full_name, phone)')
+        .eq('job_id', jobId)
+      if (data) setApplications(data)
+      setLoading(false)
+    }
+    fetch()
+  }, [jobId])
+
+  if (loading) return <p className="text-slate-400 text-sm">Loading...</p>
+  if (applications.length === 0) return <p className="text-slate-400 text-sm">Koi application nahi abhi</p>
+
+  return (
+    <div className="space-y-3 mt-4">
+      <p className="text-sm font-bold text-slate-600">{applications.length} Application(s)</p>
+      {applications.map(app => (
+        <div key={app.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+          <div>
+            <p className="font-bold text-slate-900">{app.users?.full_name || 'Worker'}</p>
+            <p className="text-xs text-slate-500">{app.users?.phone}</p>
+          </div>
+          {app.status === 'applied' && (
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  await supabase.from('job_applications').update({ status: 'hired' }).eq('id', app.id)
+                  setApplications(applications.map(a => a.id === app.id ? { ...a, status: 'hired' } : a))
+                  await supabase.from('jobs').update({ status: 'filled' }).eq('id', jobId)
+                  addToast(`Worker hired!`, "success")
+                  if (onJobUpdated) onJobUpdated()
+                }}
+                className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm font-bold"
+              >Approve ✓</button>
+              <button
+                onClick={async () => {
+                  await supabase.from('job_applications').update({ status: 'rejected' }).eq('id', app.id)
+                  setApplications(applications.map(a => a.id === app.id ? { ...a, status: 'rejected' } : a))
+                  addToast(`Rejected`, "error")
+                }}
+                className="px-3 py-1.5 bg-red-50 text-red-500 rounded-lg text-sm font-bold"
+              >Reject ✗</button>
+            </div>
+          )}
+          {app.status !== 'applied' && (
+            <Badge variant={app.status === 'hired' ? 'success' : 'warning'}>{app.status}</Badge>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 
 // --- MAIN APP COMPONENT ---
@@ -82,10 +140,14 @@ export default function App() {
     })
   }, [])
 
+  const fetchJobs = async () => {
+    const { data: jobs } = await supabase.from('jobs').select('*')
+    if (jobs) setRealJobs(jobs)
+  }
+
   useEffect(() => {
     const fetchAll = async () => {
-      const { data: jobs } = await supabase.from('jobs').select('*')
-      if (jobs) setRealJobs(jobs)
+      await fetchJobs()
       const { data: workers } = await supabase.from('users').select('*').eq('role', 'worker')
       if (workers) setRealWorkers(workers)
       if (user) {
@@ -265,11 +327,11 @@ export default function App() {
                           <h3 className="text-xl font-bold text-slate-800">New Jobs Near You</h3>
                           <button onClick={() => setActiveTab('jobs')} className="text-navy font-semibold text-sm flex items-center gap-1">View All <ChevronRight size={16} /></button>
                         </div>
-                        {realJobs.length === 0 ? (
+                        {realJobs.filter(j => j.status === 'open').length === 0 ? (
                           <p className="text-slate-400 text-center py-10">Abhi koi job nahi hai</p>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {realJobs.map((job) => (
+                            {realJobs.filter(j => j.status === 'open').map((job) => (
                               <div key={job.id} className={`p-6 rounded-2xl border transition-all ${acceptedJobs.includes(job.id) ? 'bg-green-50 border-green-200' : 'bg-white border-slate-100 hover:shadow-lg'}`}>
                                 <div className="flex justify-between items-start mb-4">
                                   <div>
@@ -321,7 +383,7 @@ export default function App() {
                         </div>
                       </div>
                       <div className="grid grid-cols-1 gap-4">
-                        {realJobs.map(job => (
+                        {realJobs.filter(j => j.status === 'open').map(job => (
                           <div key={job.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white rounded-2xl border border-slate-100 hover:shadow-md transition-all gap-4">
                             <div className="flex-1">
                               <h4 className="text-lg font-bold text-navy">{job.title}</h4>
@@ -452,6 +514,15 @@ export default function App() {
                         <form className="space-y-6" onSubmit={async (e) => {
                           e.preventDefault();
                           const form = e.target;
+
+                          // Pehle user ko users table mein ensure karo
+                          await supabase.from('users').upsert({
+                            id: user.id,
+                            phone: user.phone,
+                            role: 'contractor'
+                          }, { onConflict: 'id' });
+
+                          // Phir job insert karo
                           const { error } = await supabase.from('jobs').insert({
                             contractor_id: user.id,
                             title: form.title.value,
@@ -529,15 +600,30 @@ export default function App() {
 
                   {activeTab === 'myjobs' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {contractorJobsList.map(job => (
-                        <div key={job.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                          <h3 className="text-xl font-bold text-navy">{job.title}</h3>
-                          <p className="text-slate-500">{job.location}</p>
-                        </div>
-                      ))}
+                      {realJobs.filter(job => job.contractor_id === user.id).length === 0 ? (
+                        <p className="text-slate-400 col-span-2 text-center py-10">Koi job post nahi ki abhi</p>
+                      ) : (
+                        realJobs.filter(job => job.contractor_id === user.id && job.status === 'open').map(job => (
+                          <div key={job.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h3 className="text-xl font-bold text-navy">{job.title}</h3>
+                                <p className="text-slate-500 flex items-center gap-1 mt-1">
+                                  <MapPin size={14} /> {job.location} • ₹{job.pay_per_day}/day
+                                </p>
+                              </div>
+                              <Badge variant={job.status === 'open' ? 'success' : 'warning'}>
+                                {job.status}
+                              </Badge>
+                            </div>
+
+                            {/* Applications Section */}
+                            <JobApplications jobId={job.id} supabase={supabase} addToast={addToast} onJobUpdated={fetchJobs} />
+                          </div>
+                        ))
+                      )}
                     </div>
                   )}
-
                   {activeTab === 'hired' && (
                     <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
                       <div className="overflow-x-auto">
