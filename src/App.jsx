@@ -123,6 +123,9 @@ export default function App() {
   const [realJobs, setRealJobs] = useState([])
   const [realWorkers, setRealWorkers] = useState([])
   const [myApplications, setMyApplications] = useState([])
+  const [openJobs, setOpenJobs] = useState([]);
+  const [assignedJobs, setAssignedJobs] = useState([]);
+  const [jobApplications, setJobApplications] = useState([]);
   const [available, setAvailable] = useState(true);
   const [acceptedJobs, setAcceptedJobs] = useState([]);
   const [ongoingJobs, setOngoingJobs] = useState([]);
@@ -140,9 +143,126 @@ export default function App() {
     })
   }, [])
 
+  useEffect(() => {
+    const fetchRoleFromDB = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (data?.role) {
+        setRole(data.role);
+        setActiveTab(data.role === 'admin' ? 'stats' : 'home');
+      }
+    };
+    fetchRoleFromDB();
+  }, [user]);
+
   const fetchJobs = async () => {
     const { data: jobs } = await supabase.from('jobs').select('*')
     if (jobs) setRealJobs(jobs)
+  }
+
+  async function fetchOpenJobs() {
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("*")
+      .eq("status", "open")
+      .order("id", { ascending: false });
+
+    if (!error) setOpenJobs(data || []);
+  }
+
+  async function fetchAssignedJobs(workerId) {
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("*")
+      .eq("assigned_worker_id", workerId)
+      .eq("status", "assigned")
+      .order("id", { ascending: false });
+
+    if (!error) setAssignedJobs(data || []);
+  }
+
+  async function fetchApplications(jobId) {
+    const { data, error } = await supabase
+      .from("job_applications")
+      .select("*")
+      .eq("job_id", jobId)
+      .eq("status", "applied")
+      .order("id", { ascending: true });
+
+    if (!error) setJobApplications(data || []);
+  }
+
+  async function applyToJob(jobId, workerId) {
+    const { error } = await supabase
+      .from("job_applications")
+      .insert([{ job_id: jobId, worker_id: workerId, status: "applied" }]);
+
+    if (error) {
+      if (error.code === "23505") {
+        addToast?.("Already applied to this job", "warning");
+      } else {
+        addToast?.(error.message, "error");
+      }
+      return;
+    }
+    
+    setAcceptedJobs([...acceptedJobs, jobId]);
+    addToast?.("Applied successfully", "success");
+  }
+
+  async function approveWorkerForJob(jobId, selectedWorkerId, contractorId) {
+    // 1) Verify owner + open status
+    const { data: job, error: jobErr } = await supabase
+      .from("jobs")
+      .select("id, contractor_id, status")
+      .eq("id", jobId)
+      .single();
+
+    if (jobErr) return addToast?.(jobErr.message, "error");
+    if (!job) return addToast?.("Job not found", "error");
+    if (job.contractor_id !== contractorId) return addToast?.("Unauthorized", "error");
+    if (job.status !== "open") return addToast?.("Job already assigned", "warning");
+
+    // 2) Assign in jobs table
+    const { error: assignErr } = await supabase
+      .from("jobs")
+      .update({
+        status: "assigned",
+        assigned_worker_id: selectedWorkerId,
+      })
+      .eq("id", jobId)
+      .eq("status", "open");
+
+    if (assignErr) return addToast?.(assignErr.message, "error");
+
+    // 3) Mark selected accepted
+    const { error: acceptedErr } = await supabase
+      .from("job_applications")
+      .update({ status: "accepted" })
+      .eq("job_id", jobId)
+      .eq("worker_id", selectedWorkerId);
+
+    if (acceptedErr) return addToast?.(acceptedErr.message, "error");
+
+    // 4) Mark others rejected
+    const { error: rejectedErr } = await supabase
+      .from("job_applications")
+      .update({ status: "rejected" })
+      .eq("job_id", jobId)
+      .neq("worker_id", selectedWorkerId);
+
+    if (rejectedErr) return addToast?.(rejectedErr.message, "error");
+
+    addToast?.("Worker assigned successfully", "success");
+
+    // refresh lists
+    await fetchOpenJobs();
+    if (user?.role === "worker") await fetchAssignedJobs(user.id);
   }
 
   useEffect(() => {
@@ -161,9 +281,43 @@ export default function App() {
     fetchAll()
   }, [user])
 
-  const handleRoleSelect = (selectedRole) => {
+  useEffect(() => {
+    if (!user?.id) return;
+
+    fetchOpenJobs();
+
+    if (role === "worker") {
+      fetchAssignedJobs(user.id);
+    }
+  }, [user?.id, role]);
+
+  useEffect(() => {
+    if (activeTab === 'mywork' && user) {
+      const fetchApps = async () => {
+        const { data: apps } = await supabase
+          .from('job_applications')
+          .select('*, jobs(*)')
+          .eq('worker_id', user.id);
+        if (apps) setMyApplications(apps);
+      }
+      fetchApps();
+      fetchAssignedJobs(user.id);
+    }
+  }, [activeTab, user]);
+
+  const handleRoleSelect = async (selectedRole) => {
     setRole(selectedRole);
     setActiveTab(selectedRole === 'admin' ? 'stats' : 'home');
+    
+    // Ensure the user exists in the public.users table to satisfy foreign keys
+    if (user) {
+      await supabase.from('users').upsert({
+        id: user.id,
+        phone: user.phone,
+        role: selectedRole
+      }, { onConflict: 'id' });
+    }
+
     addToast(`Logged in as ${selectedRole === 'worker' ? 'Worker' : selectedRole === 'contractor' ? 'Contractor' : 'Admin'}`, 'success');
   };
 
@@ -327,11 +481,11 @@ export default function App() {
                           <h3 className="text-xl font-bold text-slate-800">New Jobs Near You</h3>
                           <button onClick={() => setActiveTab('jobs')} className="text-navy font-semibold text-sm flex items-center gap-1">View All <ChevronRight size={16} /></button>
                         </div>
-                        {realJobs.filter(j => j.status === 'open').length === 0 ? (
+                        {openJobs.length === 0 ? (
                           <p className="text-slate-400 text-center py-10">Abhi koi job nahi hai</p>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {realJobs.filter(j => j.status === 'open').map((job) => (
+                            {openJobs.map((job) => (
                               <div key={job.id} className={`p-6 rounded-2xl border transition-all ${acceptedJobs.includes(job.id) ? 'bg-green-50 border-green-200' : 'bg-white border-slate-100 hover:shadow-lg'}`}>
                                 <div className="flex justify-between items-start mb-4">
                                   <div>
@@ -352,15 +506,7 @@ export default function App() {
                                   </div>
                                 ) : (
                                   <button
-                                    onClick={async () => {
-                                      setAcceptedJobs([...acceptedJobs, job.id]);
-                                      await supabase.from('job_applications').insert({
-                                        job_id: job.id,
-                                        worker_id: user.id,
-                                        status: 'applied'
-                                      });
-                                      addToast("Job accepted! Contractor will contact you.", "success");
-                                    }}
+                                    onClick={() => applyToJob(job.id, user.id)}
                                     className="w-full py-3 bg-saffron hover:bg-orange-600 text-white rounded-xl font-bold transition-all shadow-md active:scale-95"
                                   >
                                     Accept Job
@@ -383,7 +529,7 @@ export default function App() {
                         </div>
                       </div>
                       <div className="grid grid-cols-1 gap-4">
-                        {realJobs.filter(j => j.status === 'open').map(job => (
+                        {openJobs.map(job => (
                           <div key={job.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white rounded-2xl border border-slate-100 hover:shadow-md transition-all gap-4">
                             <div className="flex-1">
                               <h4 className="text-lg font-bold text-navy">{job.title}</h4>
@@ -397,14 +543,7 @@ export default function App() {
                                 <p className="text-lg font-bold text-slate-900">₹{job.pay_per_day}/day</p>
                               </div>
                               <button
-                                onClick={async () => {
-                                  await supabase.from('job_applications').insert({
-                                    job_id: job.id,
-                                    worker_id: user.id,
-                                    status: 'applied'
-                                  });
-                                  addToast("Applied successfully!", "success");
-                                }}
+                                onClick={() => applyToJob(job.id, user.id)}
                                 className="px-6 py-2 bg-navy text-white rounded-lg font-bold"
                               >
                                 Apply
@@ -417,34 +556,59 @@ export default function App() {
                   )}
 
                   {activeTab === 'mywork' && (
-                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                          <thead className="bg-slate-50 border-b border-slate-100">
-                            <tr>
-                              <th className="px-6 py-4 text-sm font-bold text-slate-600">Job Title</th>
-                              <th className="px-6 py-4 text-sm font-bold text-slate-600">Location</th>
-                              <th className="px-6 py-4 text-sm font-bold text-slate-600">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-50">
-                            {myApplications.length === 0 ? (
-                              <tr><td colSpan={3} className="text-center py-10 text-slate-400">Koi application nahi abhi</td></tr>
-                            ) : (
-                              myApplications.map((app) => (
-                                <tr key={app.id} className="hover:bg-slate-50">
-                                  <td className="px-6 py-4 font-semibold text-slate-900">{app.jobs?.title}</td>
-                                  <td className="px-6 py-4 text-slate-600">{app.jobs?.location}</td>
-                                  <td className="px-6 py-4">
-                                    <Badge variant={app.status === 'hired' ? 'success' : app.status === 'applied' ? 'primary' : 'warning'}>
-                                      {app.status}
-                                    </Badge>
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold text-navy">My Assigned Jobs</h2>
+                      {assignedJobs.length === 0 ? (
+                        <p className="text-slate-400">No assigned jobs yet</p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {assignedJobs.map((job) => (
+                            <div key={job.id} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-l-green-500">
+                              <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
+                              <p className="text-slate-500 mt-1"><MapPin size={14} className="inline mr-1" />{job.location}</p>
+                              <div className="mt-4">
+                                <Badge variant="success">Status: Assigned to you</Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <h2 className="text-xl font-bold text-navy mt-8">My Applications</h2>
+                      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left">
+                            <thead className="bg-slate-50 border-b border-slate-100">
+                              <tr>
+                                <th className="px-6 py-4 text-sm font-bold text-slate-600">Job Title</th>
+                                <th className="px-6 py-4 text-sm font-bold text-slate-600">Location</th>
+                                <th className="px-6 py-4 text-sm font-bold text-slate-600">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                              {myApplications.length === 0 ? (
+                                <tr><td colSpan={3} className="text-center py-10 text-slate-400">Koi application nahi abhi</td></tr>
+                              ) : (
+                                myApplications.map((app) => {
+                                  // Fallback: If DB failed to update application status, but job is assigned to this worker, consider it accepted
+                                  const isActuallyAssigned = app.jobs?.status === 'assigned' && app.jobs?.assigned_worker_id === user.id;
+                                  const displayStatus = isActuallyAssigned ? 'accepted' : app.status;
+                                  
+                                  return (
+                                  <tr key={app.id} className="hover:bg-slate-50">
+                                    <td className="px-6 py-4 font-semibold text-slate-900">{app.jobs?.title}</td>
+                                    <td className="px-6 py-4 text-slate-600">{app.jobs?.location}</td>
+                                    <td className="px-6 py-4">
+                                      <Badge variant={displayStatus === 'accepted' || displayStatus === 'hired' ? 'success' : displayStatus === 'applied' ? 'primary' : 'warning'}>
+                                        {displayStatus}
+                                      </Badge>
+                                    </td>
+                                  </tr>
+                                )})
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -618,7 +782,33 @@ export default function App() {
                             </div>
 
                             {/* Applications Section */}
-                            <JobApplications jobId={job.id} supabase={supabase} addToast={addToast} onJobUpdated={fetchJobs} />
+                            <div className="mt-4 border-t border-slate-100 pt-4">
+                              <button 
+                                onClick={() => fetchApplications(job.id)}
+                                className="text-navy font-bold text-sm bg-slate-50 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors w-full mb-4"
+                              >
+                                View Applicants
+                              </button>
+
+                              <div className="space-y-3">
+                                {jobApplications
+                                  .filter((a) => a.job_id === job.id)
+                                  .map((app) => (
+                                    <div key={app.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                      <div>
+                                        <span className="font-bold text-slate-900 block">Worker ID: {app.worker_id?.substring(0,8)}...</span>
+                                        <Badge variant="primary" className="mt-1">{app.status}</Badge>
+                                      </div>
+                                      <button 
+                                        onClick={() => approveWorkerForJob(job.id, app.worker_id, user.id)}
+                                        className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm font-bold shadow-sm"
+                                      >
+                                        Approve
+                                      </button>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
                           </div>
                         ))
                       )}
