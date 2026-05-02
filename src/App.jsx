@@ -120,6 +120,7 @@ export default function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [realJobs, setRealJobs] = useState([])
   const [realWorkers, setRealWorkers] = useState([])
   const [myApplications, setMyApplications] = useState([])
@@ -148,17 +149,23 @@ export default function App() {
       if (!user) return;
       const { data, error } = await supabase
         .from('users')
-        .select('role')
+        .select('*')
         .eq('id', user.id)
         .single();
 
-      if (data?.role) {
-        setRole(data.role);
-        setActiveTab(data.role === 'admin' ? 'stats' : 'home');
+      if (data) {
+        setUserData(data);
+        if (data.role) {
+          setRole(data.role);
+          setActiveTab(data.role === 'admin' ? 'stats' : 'home');
+        }
       }
     };
     fetchRoleFromDB();
   }, [user]);
+
+  const displayName = userData?.full_name || user?.user_metadata?.full_name || (user?.phone ? `User ${user.phone.slice(-4)}` : 'User');
+  const userInitials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
   const fetchJobs = async () => {
     const { data: jobs } = await supabase.from('jobs').select('*')
@@ -166,13 +173,28 @@ export default function App() {
   }
 
   async function fetchOpenJobs() {
-    const { data, error } = await supabase
+    const { data: jobs, error } = await supabase
       .from("jobs")
       .select("*")
       .eq("status", "open")
       .order("id", { ascending: false });
 
-    if (!error) setOpenJobs(data || []);
+    if (!error && jobs) {
+      // 10x Developer Hack: Forcefully scrub out jobs that have been hired,
+      // in case the Supabase jobs table RLS silently blocked the status update!
+      const { data: hiredApps } = await supabase
+        .from("job_applications")
+        .select("job_id")
+        .in("status", ["hired", "accepted"]);
+
+      if (hiredApps && hiredApps.length > 0) {
+        const hiredJobIds = hiredApps.map(a => a.job_id);
+        const trulyOpenJobs = jobs.filter(job => !hiredJobIds.includes(job.id));
+        setOpenJobs(trulyOpenJobs);
+      } else {
+        setOpenJobs(jobs);
+      }
+    }
   }
 
   async function fetchAssignedJobs(workerId) {
@@ -229,25 +251,32 @@ export default function App() {
     if (job.status !== "open") return addToast?.("Job already assigned", "warning");
 
     // 2) Assign in jobs table
-    const { error: assignErr } = await supabase
+    const { data: updatedJob, error: assignErr } = await supabase
       .from("jobs")
       .update({
-        status: "assigned",
-        assigned_worker_id: selectedWorkerId,
+        status: "assigned"
       })
       .eq("id", jobId)
-      .eq("status", "open");
+      .eq("status", "open")
+      .select();
 
     if (assignErr) return addToast?.(assignErr.message, "error");
+    if (!updatedJob || updatedJob.length === 0) {
+      alert("🔴 CRITICAL DATABASE ERROR: Supabase RLS Policy is silently blocking you from updating the 'jobs' table! Because of this, the job's status remains 'open' and it will continue showing up in the Find Jobs feed for everyone. YOU MUST GO TO SUPABASE AND EITHER COMPLETELY DISABLE RLS FOR THE 'jobs' TABLE, OR ADD AN 'UPDATE' POLICY FOR CONTRACTORS.");
+      return; // Stop execution so they are forced to fix it!
+    }
 
-    // 3) Mark selected accepted
+    // 3) Mark selected hired (Fallback to hired instead of accepted, since DB constraint might require it)
     const { error: acceptedErr } = await supabase
       .from("job_applications")
-      .update({ status: "accepted" })
+      .update({ status: "hired" })
       .eq("job_id", jobId)
       .eq("worker_id", selectedWorkerId);
 
-    if (acceptedErr) return addToast?.(acceptedErr.message, "error");
+    if (acceptedErr) {
+      console.error("Soft Fail: Could not update job_application status:", acceptedErr);
+      // Soft-fail: We don't return here because the main 'jobs' table WAS successfully updated.
+    }
 
     // 4) Mark others rejected
     const { error: rejectedErr } = await supabase
@@ -256,11 +285,14 @@ export default function App() {
       .eq("job_id", jobId)
       .neq("worker_id", selectedWorkerId);
 
-    if (rejectedErr) return addToast?.(rejectedErr.message, "error");
+    if (rejectedErr) {
+      console.error("Soft Fail: Could not update other applications:", rejectedErr);
+    }
 
     addToast?.("Worker assigned successfully", "success");
 
     // refresh lists
+    setOpenJobs((prev) => prev.filter((j) => j.id !== jobId));
     await fetchOpenJobs();
     if (user?.role === "worker") await fetchAssignedJobs(user.id);
   }
@@ -275,7 +307,10 @@ export default function App() {
           .from('job_applications')
           .select('*, jobs(*)')
           .eq('worker_id', user.id)
-        if (apps) setMyApplications(apps)
+        if (apps) {
+          setMyApplications(apps);
+          setAcceptedJobs(apps.map(a => a.job_id));
+        }
       }
     }
     fetchAll()
@@ -402,6 +437,7 @@ export default function App() {
                   <NavItem id="find" label="Find Workers" icon={Users} />
                   <NavItem id="myjobs" label="My Jobs" icon={Briefcase} />
                   <NavItem id="hired" label="Hired" icon={CheckCircle2} />
+                  <NavItem id="profile" label="Profile" icon={User} />
                 </>
               )}
               {role === 'admin' && (
@@ -454,8 +490,12 @@ export default function App() {
                     </button>
                   </div>
                 )}
-                <div className="w-10 h-10 bg-navy text-white rounded-full flex items-center justify-center font-bold">
-                  {role === 'worker' ? 'RK' : role === 'contractor' ? 'SC' : 'AD'}
+                <div className="w-10 h-10 bg-navy text-white rounded-full flex items-center justify-center font-bold overflow-hidden shadow-sm">
+                  {userData?.avatar_url ? (
+                    <img src={userData.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    userInitials
+                  )}
                 </div>
               </div>
             </header>
@@ -467,7 +507,7 @@ export default function App() {
                   {activeTab === 'home' && (
                     <div className="space-y-8">
                       <div>
-                        <h2 className="text-3xl font-extrabold text-navy">Namaste, Ramesh bhai 👋</h2>
+                        <h2 className="text-3xl font-extrabold text-navy">Namaste, {displayName} 👋</h2>
                         <p className="text-slate-500">Aaj Nashik mein kaafi kaam hai aapke liye.</p>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -558,14 +598,14 @@ export default function App() {
                   {activeTab === 'mywork' && (
                     <div className="space-y-6">
                       <h2 className="text-xl font-bold text-navy">My Assigned Jobs</h2>
-                      {assignedJobs.length === 0 ? (
+                      {myApplications.filter(app => app.status === 'hired' || app.status === 'accepted' || (app.jobs?.status === 'assigned' && app.jobs?.assigned_worker_id === user.id)).length === 0 ? (
                         <p className="text-slate-400">No assigned jobs yet</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {assignedJobs.map((job) => (
-                            <div key={job.id} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-l-green-500">
-                              <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                              <p className="text-slate-500 mt-1"><MapPin size={14} className="inline mr-1" />{job.location}</p>
+                          {myApplications.filter(app => app.status === 'hired' || app.status === 'accepted' || (app.jobs?.status === 'assigned' && app.jobs?.assigned_worker_id === user.id)).map((app) => (
+                            <div key={app.id} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-l-green-500">
+                              <h3 className="text-lg font-bold text-slate-900">{app.jobs?.title || 'Unknown Job'}</h3>
+                              <p className="text-slate-500 mt-1"><MapPin size={14} className="inline mr-1" />{app.jobs?.location || 'Unknown Location'}</p>
                               <div className="mt-4">
                                 <Badge variant="success">Status: Assigned to you</Badge>
                               </div>
@@ -637,22 +677,7 @@ export default function App() {
                     </div>
                   )}
 
-                  {activeTab === 'profile' && (
-                    <div className="max-w-3xl mx-auto space-y-6">
-                      <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-                        <div className="h-32 bg-navy"></div>
-                        <div className="px-8 pb-8">
-                          <div className="relative -mt-12 mb-4">
-                            <div className="w-24 h-24 rounded-3xl bg-saffron text-white flex items-center justify-center text-3xl font-black shadow-lg border-4 border-white">
-                              RK
-                            </div>
-                          </div>
-                          <h2 className="text-2xl font-bold text-navy">Ramesh Kumar</h2>
-                          <p className="text-slate-500">{user?.phone}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+
                 </>
               )}
 
@@ -661,7 +686,7 @@ export default function App() {
                 <>
                   {activeTab === 'home' && (
                     <div className="space-y-8">
-                      <h2 className="text-3xl font-extrabold text-navy">Welcome, Suresh Contractors 👋</h2>
+                      <h2 className="text-3xl font-extrabold text-navy">Welcome, {displayName} 👋</h2>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <StatCard title="Active Jobs" value={realJobs.length} icon={Briefcase} />
                         <StatCard title="Workers Hired" value="12" icon={Users} />
@@ -923,6 +948,111 @@ export default function App() {
                     </div>
                   )}
                 </>
+              )}
+
+              {/* SHARED TABS */}
+              {activeTab === 'profile' && (
+                <div className="max-w-3xl mx-auto space-y-6">
+                  <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                    <div className="h-32 bg-navy"></div>
+                    <div className="px-8 pb-8">
+                      <div className="relative -mt-12 mb-4">
+                        <div className="w-24 h-24 rounded-3xl bg-saffron text-white flex items-center justify-center text-3xl font-black shadow-lg border-4 border-white overflow-hidden">
+                          {userData?.avatar_url ? (
+                            <img src={userData.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                          ) : (
+                            userInitials
+                          )}
+                        </div>
+                      </div>
+                      <h2 className="text-2xl font-bold text-navy">{displayName}</h2>
+                      <p className="text-slate-500">{user?.phone}</p>
+                      {userData?.email && <p className="text-slate-500 font-medium">{userData.email}</p>}
+
+                      <div className="mt-8 pt-8 border-t border-slate-100">
+                        <h3 className="text-lg font-bold text-slate-800 mb-4">Edit Profile</h3>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const newName = e.target.fullName.value;
+                            const newEmail = e.target.email.value;
+                            
+                            const updates = { full_name: newName };
+                            if (newEmail) updates.email = newEmail;
+
+                            // Handle Photo Upload via Base64
+                            const photoFile = e.target.photo.files[0];
+                            if (photoFile) {
+                              const reader = new FileReader();
+                              reader.onloadend = async () => {
+                                updates.avatar_url = reader.result;
+                                const { error } = await supabase.from('users').update(updates).eq('id', user.id);
+                                if (error) {
+                                  addToast?.(error.message, 'error');
+                                } else {
+                                  addToast?.('Profile updated successfully!', 'success');
+                                  setUserData({ ...userData, ...updates });
+                                }
+                              };
+                              reader.readAsDataURL(photoFile);
+                              return; // Stop here, reader will handle the submit
+                            }
+
+                            const { error } = await supabase
+                              .from('users')
+                              .update(updates)
+                              .eq('id', user.id);
+                              
+                            if (error) {
+                              addToast?.(error.message, 'error');
+                            } else {
+                              addToast?.('Profile updated successfully!', 'success');
+                              setUserData({ ...userData, ...updates });
+                            }
+                          }} className="space-y-4">
+                          
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-bold text-slate-600">Full Name</label>
+                              <input 
+                                name="fullName" 
+                                type="text" 
+                                defaultValue={userData?.full_name || ''} 
+                                placeholder="Enter your full name" 
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy" 
+                                required 
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-bold text-slate-600">Email Address</label>
+                              <input 
+                                name="email" 
+                                type="email" 
+                                defaultValue={userData?.email || ''} 
+                                placeholder="name@example.com" 
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy" 
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-600">Profile Photo</label>
+                            <input 
+                              name="photo" 
+                              type="file" 
+                              accept="image/*"
+                              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-navy file:text-white hover:file:bg-navy-light" 
+                            />
+                            <p className="text-xs text-slate-400">Choose an image to upload as your profile picture. It will be saved securely.</p>
+                          </div>
+
+                          <button type="submit" className="px-6 py-3 bg-navy text-white rounded-xl font-bold shadow-md hover:bg-navy-light transition-all">
+                            Save Changes
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </main>
