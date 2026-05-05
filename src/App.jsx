@@ -232,7 +232,7 @@ export default function App() {
       }
       return;
     }
-    
+
     setAcceptedJobs([...acceptedJobs, jobId]);
     addToast?.("Applied successfully", "success");
   }
@@ -343,7 +343,7 @@ export default function App() {
   const handleRoleSelect = async (selectedRole) => {
     setRole(selectedRole);
     setActiveTab(selectedRole === 'admin' ? 'stats' : 'home');
-    
+
     // Ensure the user exists in the public.users table to satisfy foreign keys
     if (user) {
       await supabase.from('users').upsert({
@@ -633,18 +633,19 @@ export default function App() {
                                   // Fallback: If DB failed to update application status, but job is assigned to this worker, consider it accepted
                                   const isActuallyAssigned = app.jobs?.status === 'assigned' && app.jobs?.assigned_worker_id === user.id;
                                   const displayStatus = isActuallyAssigned ? 'accepted' : app.status;
-                                  
+
                                   return (
-                                  <tr key={app.id} className="hover:bg-slate-50">
-                                    <td className="px-6 py-4 font-semibold text-slate-900">{app.jobs?.title}</td>
-                                    <td className="px-6 py-4 text-slate-600">{app.jobs?.location}</td>
-                                    <td className="px-6 py-4">
-                                      <Badge variant={displayStatus === 'accepted' || displayStatus === 'hired' ? 'success' : displayStatus === 'applied' ? 'primary' : 'warning'}>
-                                        {displayStatus}
-                                      </Badge>
-                                    </td>
-                                  </tr>
-                                )})
+                                    <tr key={app.id} className="hover:bg-slate-50">
+                                      <td className="px-6 py-4 font-semibold text-slate-900">{app.jobs?.title}</td>
+                                      <td className="px-6 py-4 text-slate-600">{app.jobs?.location}</td>
+                                      <td className="px-6 py-4">
+                                        <Badge variant={displayStatus === 'accepted' || displayStatus === 'hired' ? 'success' : displayStatus === 'applied' ? 'primary' : 'warning'}>
+                                          {displayStatus}
+                                        </Badge>
+                                      </td>
+                                    </tr>
+                                  )
+                                })
                               )}
                             </tbody>
                           </table>
@@ -808,7 +809,7 @@ export default function App() {
 
                             {/* Applications Section */}
                             <div className="mt-4 border-t border-slate-100 pt-4">
-                              <button 
+                              <button
                                 onClick={() => fetchApplications(job.id)}
                                 className="text-navy font-bold text-sm bg-slate-50 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors w-full mb-4"
                               >
@@ -821,10 +822,10 @@ export default function App() {
                                   .map((app) => (
                                     <div key={app.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
                                       <div>
-                                        <span className="font-bold text-slate-900 block">Worker ID: {app.worker_id?.substring(0,8)}...</span>
+                                        <span className="font-bold text-slate-900 block">Worker ID: {app.worker_id?.substring(0, 8)}...</span>
                                         <Badge variant="primary" className="mt-1">{app.status}</Badge>
                                       </div>
-                                      <button 
+                                      <button
                                         onClick={() => approveWorkerForJob(job.id, app.worker_id, user.id)}
                                         className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm font-bold shadow-sm"
                                       >
@@ -972,75 +973,75 @@ export default function App() {
                       <div className="mt-8 pt-8 border-t border-slate-100">
                         <h3 className="text-lg font-bold text-slate-800 mb-4">Edit Profile</h3>
                         <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            const newName = e.target.fullName.value;
-                            const newEmail = e.target.email.value;
-                            
-                            const updates = { full_name: newName };
-                            if (newEmail) updates.email = newEmail;
+                          e.preventDefault();
+                          const newName = e.target.fullName.value;
+                          const newEmail = e.target.email.value;
 
-                            // Handle Photo Upload via Base64
-                            const photoFile = e.target.photo.files[0];
-                            if (photoFile) {
-                              const reader = new FileReader();
-                              reader.onloadend = async () => {
-                                updates.avatar_url = reader.result;
-                                const { error } = await supabase.from('users').update(updates).eq('id', user.id);
-                                if (error) {
-                                  addToast?.(error.message, 'error');
-                                } else {
-                                  addToast?.('Profile updated successfully!', 'success');
-                                  setUserData({ ...userData, ...updates });
-                                }
-                              };
-                              reader.readAsDataURL(photoFile);
-                              return; // Stop here, reader will handle the submit
-                            }
+                          const updates = { full_name: newName };
+                          if (newEmail) updates.email = newEmail;
 
-                            const { error } = await supabase
-                              .from('users')
-                              .update(updates)
-                              .eq('id', user.id);
-                              
-                            if (error) {
-                              addToast?.(error.message, 'error');
-                            } else {
-                              addToast?.('Profile updated successfully!', 'success');
-                              setUserData({ ...userData, ...updates });
-                            }
-                          }} className="space-y-4">
-                          
+                          // Handle Photo Upload via Base64
+                          const photoFile = e.target.photo.files[0];
+                          if (photoFile) {
+                            const reader = new FileReader();
+                            reader.onloadend = async () => {
+                              updates.avatar_url = reader.result;
+                              const { error } = await supabase.from('users').update(updates).eq('id', user.id);
+                              if (error) {
+                                addToast?.(error.message, 'error');
+                              } else {
+                                addToast?.('Profile updated successfully!', 'success');
+                                setUserData({ ...userData, ...updates });
+                              }
+                            };
+                            reader.readAsDataURL(photoFile);
+                            return; // Stop here, reader will handle the submit
+                          }
+
+                          const { error } = await supabase
+                            .from('users')
+                            .update(updates)
+                            .eq('id', user.id);
+
+                          if (error) {
+                            addToast?.(error.message, 'error');
+                          } else {
+                            addToast?.('Profile updated successfully!', 'success');
+                            setUserData({ ...userData, ...updates });
+                          }
+                        }} className="space-y-4">
+
                           <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <label className="text-sm font-bold text-slate-600">Full Name</label>
-                              <input 
-                                name="fullName" 
-                                type="text" 
-                                defaultValue={userData?.full_name || ''} 
-                                placeholder="Enter your full name" 
-                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy" 
-                                required 
+                              <input
+                                name="fullName"
+                                type="text"
+                                defaultValue={userData?.full_name || ''}
+                                placeholder="Enter your full name"
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy"
+                                required
                               />
                             </div>
                             <div className="space-y-2">
                               <label className="text-sm font-bold text-slate-600">Email Address</label>
-                              <input 
-                                name="email" 
-                                type="email" 
-                                defaultValue={userData?.email || ''} 
-                                placeholder="name@example.com" 
-                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy" 
+                              <input
+                                name="email"
+                                type="email"
+                                defaultValue={userData?.email || ''}
+                                placeholder="name@example.com"
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy"
                               />
                             </div>
                           </div>
 
                           <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-600">Profile Photo</label>
-                            <input 
-                              name="photo" 
-                              type="file" 
+                            <input
+                              name="photo"
+                              type="file"
                               accept="image/*"
-                              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-navy file:text-white hover:file:bg-navy-light" 
+                              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-navy file:text-white hover:file:bg-navy-light"
                             />
                             <p className="text-xs text-slate-400">Choose an image to upload as your profile picture. It will be saved securely.</p>
                           </div>
