@@ -1,11 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="apple-touch-icon" href="/Shramik-Logo.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#1a3c6e" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Shramik - Har Haath Ko Kaam. India's digital platform connecting blue-collar workers with contractors and employers. Empowering 500+ million skilled workers." />
+    <meta name="keywords" content="shramik, blue-collar, jobs, skilled workers, india, nashik, electrician, plumber, carpenter, contractor" />
+    <meta property="og:title" content="Shramik - Har Haath Ko Kaam" />
+    <meta property="og:description" content="India's digital backbone for the blue-collar workforce. Connecting skilled workers with contractors." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/Shramik-Logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shramik - Har Haath Ko Kaam" />
+    <meta name="twitter:description" content="India's digital platform connecting blue-collar workers with contractors and employers." />
     <title>Shramik - Har Haath Ko Kaam</title>
   </head>
   <body>
@@ -15,9 +25,9 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').then(registration => {
-            console.log('ServiceWorker registration successful');
+            console.log('Shramik ServiceWorker registered');
           }, err => {
-            console.log('ServiceWorker registration failed: ', err);
+            console.log('Shramik ServiceWorker registration failed:', err);
           });
         });
       }

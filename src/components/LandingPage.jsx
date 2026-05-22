@@ -24,7 +24,7 @@ const FAQItem = ({ question, answer }) => {
   );
 };
 
-const LandingPage = ({ onSelect, onLogin, onRegister }) => {
+const LandingPage = ({ onLogin, onRegister }) => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
@@ -213,7 +213,7 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
             <h2 className="text-sm font-black tracking-widest uppercase text-saffron mb-3">The Crisis</h2>
             <h3 className="text-4xl md:text-5xl font-extrabold text-[#0f2b5b] tracking-tight">Why India Needs Shramik</h3>
             <p className="mt-6 text-xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
-              India’s blue-collar sector is a <span className="text-navy font-bold">$300 billion market</span>, yet it remains largely invisible. Millions of skilled workers operate in an ecosystem plagued by inefficiency.
+              India's blue-collar sector is a <span className="text-navy font-bold">$300 billion market</span>, yet it remains largely invisible. Millions of skilled workers operate in an ecosystem plagued by inefficiency.
             </p>
           </div>
 
@@ -263,7 +263,6 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
           </div>
 
           <div className="space-y-8">
-            {/* Pillar 1 */}
             <div className="bg-white/10 backdrop-blur-md p-8 md:p-10 rounded-3xl border border-white/10 flex flex-col md:flex-row gap-8 items-center hover:bg-white/15 transition-colors">
               <div className="md:w-1/3 flex justify-center">
                 <div className="w-32 h-32 bg-gradient-to-br from-saffron to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-saffron/40">
@@ -281,7 +280,6 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
               </div>
             </div>
 
-            {/* Pillar 2 */}
             <div className="bg-white/10 backdrop-blur-md p-8 md:p-10 rounded-3xl border border-white/10 flex flex-col md:flex-row-reverse gap-8 items-center hover:bg-white/15 transition-colors">
               <div className="md:w-1/3 flex justify-center">
                 <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/40">
@@ -299,7 +297,6 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
               </div>
             </div>
 
-            {/* Pillar 3 */}
             <div className="bg-white/10 backdrop-blur-md p-8 md:p-10 rounded-3xl border border-white/10 flex flex-col md:flex-row gap-8 items-center hover:bg-white/15 transition-colors">
               <div className="md:w-1/3 flex justify-center">
                 <div className="w-32 h-32 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl shadow-purple-500/40">
@@ -352,7 +349,6 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
             </div>
           </div>
 
-          {/* Certifications Box */}
           <div className="bg-white p-8 md:p-12 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-200">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="flex items-start gap-6">
@@ -486,7 +482,7 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
         </div>
       </section>
 
-      {/* Footer is rendered in App.jsx typically or we can include it here, but looking at App.jsx, the footer was part of LandingPage. Let me add it here. */}
+      {/* Footer */}
       <footer className="bg-[#0b1d3d] text-white py-12 px-6 border-t-4 border-saffron">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
@@ -511,7 +507,7 @@ const LandingPage = ({ onSelect, onLogin, onRegister }) => {
               <a href="#" className="hover:text-saffron transition-colors">Verification Guidelines</a>
             </div>
             <div className="text-white/40 text-xs font-semibold">
-              © 2026 Shramik Platform Initiative. All rights reserved.
+              &copy; 2026 Shramik Platform Initiative. All rights reserved.
             </div>
           </div>
         </div>
