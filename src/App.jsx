@@ -217,7 +217,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Toast toasts={toasts} removeToast={removeToast} />
-      {showRegister && <Register onClose={() => setShowRegister(false)} onSuccess={(msg) => { addToast(msg, 'success'); setShowRegister(false) }} />}
+      {showRegister && <Register onClose={() => setShowRegister(false)} onSuccess={(user) => { if (user) setUser(user); setShowRegister(false); addToast('Welcome to Shramik!', 'success') }} />}
       {showLogin && <PhoneLogin onClose={() => setShowLogin(false)} onLoginSuccess={(u) => { setUser(u); setShowLogin(false); addToast('Logged in successfully!', 'success') }} />}
 
       {!user ? (
@@ -253,6 +253,7 @@ export default function App() {
                       acceptedJobs={acceptedJobs}
                       onApply={applyToJob}
                       onViewJobs={() => setActiveTab('jobs')}
+                      addToast={addToast}
                     />
                   )}
                   {activeTab === 'jobs' && (
@@ -275,7 +276,7 @@ export default function App() {
 
               {role === 'admin' && (
                 <>
-                  {activeTab === 'stats' && <AdminDashboard />}
+                  {activeTab === 'stats' && <AdminDashboard user={user} />}
                   {activeTab === 'verify' && <Verifications addToast={addToast} />}
                   {activeTab === 'activity' && <ActivityFeed />}
                   {activeTab === 'cities' && <CityCoverage />}

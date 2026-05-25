@@ -17,6 +17,7 @@ create table if not exists public.users (
   city          text,
   avatar_url    text,
   available     boolean default true,
+  verified      boolean default false,
   rating        numeric(3,2) default 0,
   jobs_completed integer default 0,
   created_at    timestamptz default now(),

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   ChevronDown, ArrowRight, CheckCircle2, UserCheck, Building,
   ShieldCheck, BadgeCheck, Users, Briefcase, Menu, X, IndianRupee,
-  Search, ChevronRight, Phone, MapPin
+  Search, ChevronRight, Phone, MapPin, MessageSquare
 } from 'lucide-react'
 import Wordmark from './Wordmark'
 
@@ -216,6 +216,28 @@ const LandingPage = ({ onLogin, onRegister }) => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ═══════ WHATSAPP ═══════ */}
+      <section className="py-12 md:py-16 bg-white border-t border-slate-100">
+        <div className="max-w-2xl mx-auto px-4 md:px-6 text-center">
+          <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <MessageSquare size={24} />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-navy tracking-tight mb-2">Join our WhatsApp Community</h2>
+          <p className="text-sm text-slate-500 mb-6 max-w-md mx-auto">
+            Get job alerts, platform updates, and connect with other workers and contractors in Nashik.
+          </p>
+          <a
+            href="https://wa.me/919999999999?text=I%20want%20to%20join%20Shramik%20WhatsApp%20community"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-sm transition-all shadow-md"
+          >
+            <MessageSquare size={18} /> Join WhatsApp Group
+          </a>
+          <p className="text-[11px] text-slate-400 mt-3">200+ workers already connected. Replace with your group link.</p>
         </div>
       </section>
 
