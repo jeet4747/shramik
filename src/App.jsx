@@ -303,7 +303,7 @@ export default function App() {
 
               {role === 'contractor' && (
                 <>
-                  {activeTab === 'home' && <ContractorDashboard user={user} />}
+                  {activeTab === 'home' && <ContractorDashboard user={user} userData={userData} />}
                   {activeTab === 'post' && <PostJob user={user} onJobPosted={fetchJobs} addToast={addToast} />}
                   {activeTab === 'find' && <FindWorkers addToast={addToast} />}
                   {activeTab === 'myjobs' && <MyJobs user={user} jobs={realJobs} onJobsUpdated={fetchJobs} addToast={addToast} />}

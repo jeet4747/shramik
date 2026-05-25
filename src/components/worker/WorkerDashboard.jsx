@@ -14,7 +14,7 @@ export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs
   const [stats, setStats] = useState(null)
   const [statsError, setStatsError] = useState(null)
   const recentJobs = openJobs?.slice(0, 4) || []
-  const displayName = userData?.full_name || user?.user_metadata?.full_name || 'Worker'
+  const displayName = userData?.full_name || user?.full_name || 'Worker'
 
   useEffect(() => {
     let mounted = true

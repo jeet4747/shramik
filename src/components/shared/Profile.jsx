@@ -8,7 +8,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef(null)
 
-  const displayName = userData?.full_name || user?.user_metadata?.full_name || 'User'
+  const displayName = userData?.full_name || user?.full_name || 'User'
   const userInitials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
 
   const handleSubmit = async (e) => {

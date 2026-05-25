@@ -5,40 +5,32 @@ import StatCard from '../shared/StatCard'
 import { CardSkeleton } from '../shared/LoadingSkeleton'
 import ErrorState from '../shared/ErrorState'
 
-export default function ContractorDashboard({ user }) {
+export default function ContractorDashboard({ user, userData }) {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const displayName = user?.user_metadata?.full_name || 'Contractor'
 
   useEffect(() => {
     let mounted = true
     const fetchStats = async () => {
       try {
-        const { data: activeJobs } = await supabase
+        const { data: myJobs } = await supabase
           .from('jobs')
-          .select('id', { count: 'exact', head: true })
+          .select('id, status')
           .eq('contractor_id', user.id)
-          .eq('status', 'open')
 
-        const { data: hiredCount } = await supabase
-          .from('job_applications')
-          .select('id', { count: 'exact', head: true })
-          .in('job_id', supabase.from('jobs').select('id').eq('contractor_id', user.id))
-          .eq('status', 'hired')
+        const activeJobs = Array.isArray(myJobs) ? myJobs.filter(j => j.status === 'open').length : 0
 
-        const { data: pendingApps } = await supabase
+        const { data: allApps } = await supabase
           .from('job_applications')
-          .select('id', { count: 'exact', head: true })
-          .in('job_id', supabase.from('jobs').select('id').eq('contractor_id', user.id))
-          .eq('status', 'applied')
+          .select('id, status, jobs!inner(contractor_id)')
+          .eq('jobs.contractor_id', user.id)
+
+        const hired = Array.isArray(allApps) ? allApps.filter(a => a.status === 'hired').length : 0
+        const pending = Array.isArray(allApps) ? allApps.filter(a => a.status === 'applied').length : 0
 
         if (mounted) {
-          setStats({
-            activeJobs: activeJobs?.length || 0,
-            hired: hiredCount?.length || 0,
-            pending: pendingApps?.length || 0,
-          })
+          setStats({ activeJobs, hired, pending })
         }
       } catch (err) {
         if (mounted) setError(err.message)
@@ -49,6 +41,8 @@ export default function ContractorDashboard({ user }) {
     fetchStats()
     return () => { mounted = false }
   }, [user.id])
+
+  const displayName = userData?.full_name || user?.full_name || 'Contractor'
 
   return (
     <div className="space-y-8">
