@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import { User, Phone, MapPin, Wrench, X, ShieldCheck, ArrowRight } from "lucide-react";
+import { User, Phone, MapPin, Wrench, X, ArrowRight } from "lucide-react";
 
 const Register = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -15,10 +15,7 @@ const Register = ({ onClose, onSuccess }) => {
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -26,72 +23,58 @@ const Register = ({ onClose, onSuccess }) => {
     setIsLoading(true);
     setError(null);
 
-    const { data, error: sbError } = await supabase
+    const { error: sbError } = await supabase
       .from("users")
       .insert([formData]);
 
     setIsLoading(false);
 
     if (sbError) {
-      console.log("Error:", sbError.message);
       setError(sbError.message);
     } else {
-      console.log("User Registered:", data);
       onSuccess("Registration Successful! Welcome to Shramik.");
       onClose();
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f2b5b]/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-lg transition-colors z-10"
+        >
+          <X size={18} />
+        </button>
 
-        {/* Header */}
-        <div className="bg-[#0f2b5b] p-6 text-white relative">
-          <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-white/10 rounded-full">
-            <X size={20} />
-          </button>
-
-          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
-            <ShieldCheck size={28} className="text-[#f97316]" />
+        <div className="p-6 pb-2 text-center">
+          <div className="w-10 h-10 bg-navy text-white rounded-xl flex items-center justify-center mx-auto mb-3">
+            <User size={20} />
           </div>
-
-          <h2 className="text-2xl font-bold">Join Shramik</h2>
-          <p className="text-white/70 text-sm">Register for the Workforce Network</p>
+          <h2 className="text-xl font-black text-navy">Create Account</h2>
+          <p className="text-xs text-slate-400 mt-1">Join India's trusted workforce network</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-
+        <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-3.5">
           {error && (
-            <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm">
-              {error}
-            </div>
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs font-bold">{error}</div>
           )}
 
-          {/* Role */}
-          <div className="flex p-1 bg-slate-100 rounded-xl">
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, role: "worker" })}
-              className={`flex-1 py-2 rounded-lg ${formData.role === "worker" ? "bg-white shadow" : ""
-                }`}
-            >
-              Worker
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, role: "contractor" })}
-              className={`flex-1 py-2 rounded-lg ${formData.role === "contractor" ? "bg-white shadow" : ""
-                }`}
-            >
-              Contractor
-            </button>
+          <div className="flex p-0.5 bg-slate-100 rounded-lg">
+            {["worker", "contractor"].map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setFormData({ ...formData, role: r })}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${formData.role === r ? "bg-white text-navy shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+              >
+                {r === "worker" ? "Worker" : "Contractor"}
+              </button>
+            ))}
           </div>
 
-          {/* Name */}
           <div className="relative">
-            <User className="absolute left-3 top-3 text-gray-400" size={18} />
+            <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
             <input
               type="text"
               name="full_name"
@@ -99,27 +82,25 @@ const Register = ({ onClose, onSuccess }) => {
               value={formData.full_name}
               onChange={handleChange}
               required
-              className="w-full pl-10 p-3 rounded-xl bg-gray-100"
+              className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors"
             />
           </div>
 
-          {/* Phone */}
           <div className="relative">
-            <Phone className="absolute left-3 top-3 text-gray-400" size={18} />
+            <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
             <input
-              type="text"
+              type="tel"
               name="phone"
               placeholder="Phone Number"
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full pl-10 p-3 rounded-xl bg-gray-100"
+              className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors"
             />
           </div>
 
-          {/* City */}
           <div className="relative">
-            <MapPin className="absolute left-3 top-3 text-gray-400" size={18} />
+            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
             <input
               type="text"
               name="city"
@@ -127,22 +108,21 @@ const Register = ({ onClose, onSuccess }) => {
               value={formData.city}
               onChange={handleChange}
               required
-              className="w-full pl-10 p-3 rounded-xl bg-gray-100"
+              className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors"
             />
           </div>
 
-          {/* Skill */}
           {formData.role === "worker" && (
             <div className="relative">
-              <Wrench className="absolute left-3 top-3 text-gray-400" size={18} />
+              <Wrench size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
               <input
                 type="text"
                 name="skill"
-                placeholder="Skill (Electrician, Plumber)"
+                placeholder="Skill (e.g. Electrician, Plumber)"
                 value={formData.skill}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 p-3 rounded-xl bg-gray-100"
+                className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors"
               />
             </div>
           )}
@@ -150,11 +130,14 @@ const Register = ({ onClose, onSuccess }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-orange-500 text-white rounded-xl font-bold"
+            className="w-full py-3 bg-saffron hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
           >
-            {isLoading ? "Loading..." : "Create Account"}
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>Create Account <ArrowRight size={16} /></>
+            )}
           </button>
-
         </form>
       </div>
     </div>
