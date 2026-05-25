@@ -129,9 +129,11 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists users_updated_at on public.users;
 create trigger users_updated_at before update on public.users
   for each row execute function public.update_updated_at();
 
+drop trigger if exists jobs_updated_at on public.jobs;
 create trigger jobs_updated_at before update on public.jobs
   for each row execute function public.update_updated_at();
 
