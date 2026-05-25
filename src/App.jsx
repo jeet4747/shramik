@@ -37,38 +37,41 @@ export default function App() {
   const [openJobs, setOpenJobs] = useState([])
   const [acceptedJobs, setAcceptedJobs] = useState([])
   const [available, setAvailable] = useState(true)
-  const authInitialized = useRef(false)
+  const initialized = useRef(false)
 
-  // Auth session — runs once
+  // Restore session from localStorage on mount
   useEffect(() => {
-    if (authInitialized.current) return
-    authInitialized.current = true
+    if (initialized.current) return
+    initialized.current = true
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setUser(session.user)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => subscription?.unsubscribe()
+    const saved = localStorage.getItem('shramik_user')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        setUser(parsed) // eslint-disable-line react-hooks/set-state-in-effect
+      } catch {
+        localStorage.removeItem('shramik_user')
+      }
+    }
   }, [])
 
-  // Fetch user role when user changes
+  // Fetch user data from DB when user changes
   useEffect(() => {
     if (!user) {
       setRole(null) // eslint-disable-line react-hooks/set-state-in-effect
       setUserData(null)
       return
     }
+
     let cancelled = false
-    const fetchRole = async () => {
+    const fetchData = async () => {
       try {
         const { data } = await supabase
           .from('users')
           .select('*')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
+
         if (data && !cancelled) {
           setUserData(data)
           if (data.role) {
@@ -77,23 +80,23 @@ export default function App() {
           }
         }
       } catch {
-        // User record may not exist yet
+        // User record may not exist yet or DB issue
       }
     }
-    fetchRole()
+    fetchData()
     return () => { cancelled = true }
   }, [user])
 
-  const displayName = userData?.full_name || user?.user_metadata?.full_name || (user?.phone ? `User ${user.phone.slice(-4)}` : 'User')
+  const displayName = userData?.full_name || user?.full_name || 'User'
   const userInitials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
 
   // Data fetching
   const fetchJobs = useCallback(async () => {
     try {
-      const { data: jobs } = await supabase.from('jobs').select('*')
-      if (jobs) setRealJobs(jobs)
+      const { data } = await supabase.from('jobs').select('*')
+      if (Array.isArray(data)) setRealJobs(data)
     } catch {
-      // Silently fail — data will remain stale
+      // Silently fail
     }
   }, [])
 
@@ -105,13 +108,13 @@ export default function App() {
         .eq('status', 'open')
         .order('id', { ascending: false })
 
-      if (jobs) {
+      if (Array.isArray(jobs)) {
         const { data: hiredApps } = await supabase
           .from('job_applications')
           .select('job_id')
           .in('status', ['hired', 'accepted'])
 
-        if (hiredApps?.length > 0) {
+        if (Array.isArray(hiredApps) && hiredApps.length > 0) {
           const hiredJobIds = hiredApps.map(a => a.job_id)
           setOpenJobs(jobs.filter(job => !hiredJobIds.includes(job.id)))
         } else {
@@ -126,13 +129,14 @@ export default function App() {
   const fetchMyApplications = useCallback(async () => {
     if (!user) return
     try {
-      const { data: apps } = await supabase
+      const { data } = await supabase
         .from('job_applications')
         .select('*, jobs(*)')
         .eq('worker_id', user.id)
-      if (apps) {
-        setMyApplications(apps)
-        setAcceptedJobs(apps.map(a => a.job_id))
+
+      if (Array.isArray(data)) {
+        setMyApplications(data)
+        setAcceptedJobs(data.map(a => a.job_id))
       }
     } catch {
       // Silently fail
@@ -140,10 +144,10 @@ export default function App() {
   }, [user])
 
   // Initial data load
-  const initialLoadDone = useRef(false)
+  const dataLoaded = useRef(false)
   useEffect(() => {
-    if (initialLoadDone.current) return
-    initialLoadDone.current = true
+    if (dataLoaded.current) return
+    dataLoaded.current = true
     fetchJobs()
     fetchOpenJobs()
     fetchMyApplications()
@@ -156,25 +160,44 @@ export default function App() {
     }
   }, [activeTab, user, fetchMyApplications])
 
+  const setCurrentUser = (userData) => {
+    const session = { id: userData.id, phone: userData.phone, role: userData.role }
+    localStorage.setItem('shramik_user', JSON.stringify(session))
+    setUser(session)
+    setUserData(userData)
+    if (userData.role) {
+      setRole(userData.role)
+      setActiveTab(userData.role === 'admin' ? 'stats' : 'home')
+    }
+  }
+
   const handleRoleSelect = async (selectedRole) => {
     setRole(selectedRole)
     setActiveTab(selectedRole === 'admin' ? 'stats' : 'home')
     if (user) {
       try {
-        await supabase.from('users').upsert({
-          id: user.id,
-          phone: user.phone,
-          role: selectedRole,
-        }, { onConflict: 'id' })
+        const { data } = await supabase
+          .from('users')
+          .update({ role: selectedRole })
+          .eq('id', user.id)
+          .select()
+          .maybeSingle()
+
+        if (data) {
+          const session = { id: data.id, phone: data.phone, role: data.role }
+          localStorage.setItem('shramik_user', JSON.stringify(session))
+          setUser(session)
+          setUserData(data)
+        }
       } catch {
-        // Ignore upsert errors
+        // Ignore
       }
     }
     addToast(`Logged in as ${selectedRole}`, 'success')
   }
 
-  const logout = async () => {
-    await supabase.auth.signOut()
+  const logout = () => {
+    localStorage.removeItem('shramik_user')
     setUser(null)
     setRole(null)
     setActiveTab('home')
@@ -209,7 +232,7 @@ export default function App() {
       try {
         await supabase.from('users').update({ available: !available }).eq('id', user.id)
       } catch {
-        // Ignore — UI already updated
+        // Ignore
       }
     }
   }
@@ -217,11 +240,26 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Toast toasts={toasts} removeToast={removeToast} />
-      {showRegister && <Register onClose={() => setShowRegister(false)} onSuccess={(user) => { if (user) setUser(user); setShowRegister(false); addToast('Welcome to Shramik!', 'success') }} />}
-      {showLogin && <PhoneLogin onClose={() => setShowLogin(false)} onLoginSuccess={(u) => { setUser(u); setShowLogin(false); addToast('Logged in successfully!', 'success') }} />}
+      {showRegister && (
+        <Register
+          onClose={() => setShowRegister(false)}
+          onSuccess={(data) => { setCurrentUser(data); addToast('Welcome to Shramik!', 'success') }}
+        />
+      )}
+      {showLogin && (
+        <PhoneLogin
+          onClose={() => setShowLogin(false)}
+          onLoginSuccess={(data) => { setCurrentUser(data); addToast('Signed in successfully!', 'success') }}
+          onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }}
+        />
+      )}
 
       {!user ? (
-        <LandingPage onSelect={handleRoleSelect} onLogin={() => setShowLogin(true)} onRegister={() => setShowRegister(true)} />
+        <LandingPage
+          onSelect={handleRoleSelect}
+          onLogin={() => setShowLogin(true)}
+          onRegister={() => setShowRegister(true)}
+        />
       ) : !role ? (
         <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
           <RoleSelection onSelect={handleRoleSelect} />
@@ -253,7 +291,6 @@ export default function App() {
                       acceptedJobs={acceptedJobs}
                       onApply={applyToJob}
                       onViewJobs={() => setActiveTab('jobs')}
-                      addToast={addToast}
                     />
                   )}
                   {activeTab === 'jobs' && (
