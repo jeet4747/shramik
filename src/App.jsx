@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { supabase } from './supabaseClient'
+import { supabase, isSupabaseReady } from './supabaseClient'
 import { Toast } from './components/Toast'
 import { useToast } from './hooks/useToast'
 import Register from './components/Register'
@@ -240,6 +240,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Toast toasts={toasts} removeToast={removeToast} />
+      {!isSupabaseReady && (
+        <div style={{background:'#dc2626',color:'white',padding:'16px',textAlign:'center',fontSize:'14px',zIndex:99999}}>
+          Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel env vars and redeploy.
+        </div>
+      )}
       {showRegister && (
         <Register
           onClose={() => setShowRegister(false)}
