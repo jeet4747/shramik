@@ -9,6 +9,11 @@ const navConfig = {
     { id: 'earnings', label: 'Earnings', icon: IndianRupee },
     { id: 'profile', label: 'Profile', icon: User },
   ],
+  thekedar: [
+    { id: 'home', label: 'My Team', icon: Users },
+    { id: 'find', label: 'Find Workers', icon: Search },
+    { id: 'profile', label: 'Profile', icon: User },
+  ],
   contractor: [
     { id: 'home', label: 'Overview', icon: BarChart3 },
     { id: 'post', label: 'Post Job', icon: PlusCircle },

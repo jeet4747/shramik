@@ -79,7 +79,7 @@ const en = {
   reg_title: 'Register Free',
   reg_subtitle: 'Register in 2 minutes. No fees.',
   reg_worker: 'Worker',
-  reg_contractor: 'Contractor',
+  reg_contractor: 'Thekedar',
   reg_name_placeholder: 'Full Name',
   reg_phone_placeholder: 'Phone Number',
   reg_city_placeholder: 'City',
@@ -129,6 +129,18 @@ const en = {
   wd_apply: 'Apply Now',
   wd_applied: 'Applied',
   wd_share_whatsapp: 'Share on WhatsApp',
+
+  // Thekedar Dashboard
+  th_my_team: 'My Team',
+  th_add_worker: 'Add Worker',
+  th_find_workers: 'Find Workers',
+  th_no_team: 'No team members yet',
+  th_no_team_desc: 'Add workers to your team so they get your job alerts',
+  th_no_workers: 'No workers found',
+  th_add: 'Add',
+  th_remove: 'Remove',
+  th_available: 'Available',
+  th_busy: 'Busy',
 
   // Contractor Dashboard
   cd_post_job: 'Post a Job',
@@ -209,7 +221,7 @@ const mr = {
   reg_title: 'फ्री रजिस्टर',
   reg_subtitle: '२ मिनिटात रजिस्टर करा. कोणतेही शुल्क नाही.',
   reg_worker: 'कामगार',
-  reg_contractor: 'कॉन्ट्रॅक्टर',
+  reg_contractor: 'ठेकेदार',
   reg_name_placeholder: 'पूर्ण नाव',
   reg_phone_placeholder: 'मोबाइल नंबर',
   reg_city_placeholder: 'शहर',
@@ -257,11 +269,22 @@ const mr = {
   wd_applied: 'Applied',
   wd_share_whatsapp: 'Share on WhatsApp',
 
-  cd_post_job: 'Post a Job',
-  cd_my_jobs: 'My Jobs',
-  cd_find_workers: 'Find Workers',
-  cd_no_jobs: 'No jobs posted yet',
-  cd_no_workers: 'No workers found',
+  th_my_team: 'माझी टीम',
+  th_add_worker: 'कामगार जोडा',
+  th_find_workers: 'कामगार शोधा',
+  th_no_team: 'अजून टीम मध्ये कोणी नाही',
+  th_no_team_desc: 'कामगारांना तुमच्या टीम मध्ये जोडा जेणेकरून त्यांना जॉब अलर्ट मिळतील',
+  th_no_workers: 'कोणतेही कामगार सापडले नाहीत',
+  th_add: 'जोडा',
+  th_remove: 'काढा',
+  th_available: 'Available',
+  th_busy: 'Busy',
+
+  cd_post_job: 'पोस्ट जॉब',
+  cd_my_jobs: 'माझे जॉब',
+  cd_find_workers: 'कामगार शोधा',
+  cd_no_jobs: 'अजून जॉब पोस्ट केले नाहीत',
+  cd_no_workers: 'कोणतेही कामगार सापडले नाहीत',
 }
 
 export const translations = { en, mr }

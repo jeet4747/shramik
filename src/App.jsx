@@ -13,6 +13,7 @@ import WorkerDashboard from './components/worker/WorkerDashboard'
 import FindJobs from './components/worker/FindJobs'
 import MyWork from './components/worker/MyWork'
 import Earnings from './components/worker/Earnings'
+import ThekedarDashboard from './components/thekedar/ThekedarDashboard'
 import ContractorDashboard from './components/contractor/ContractorDashboard'
 import PostJob from './components/contractor/PostJob'
 import FindWorkers from './components/contractor/FindWorkers'
@@ -303,6 +304,13 @@ export default function App() {
                   )}
                   {activeTab === 'mywork' && <MyWork applications={myApplications} />}
                   {activeTab === 'earnings' && <Earnings user={user} />}
+                </>
+              )}
+
+              {role === 'thekedar' && (
+                <>
+                  {activeTab === 'home' && <ThekedarDashboard user={user} addToast={addToast} />}
+                  {activeTab === 'find' && <FindWorkers addToast={addToast} />}
                 </>
               )}
 

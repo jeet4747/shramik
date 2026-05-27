@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import {
   CheckCircle2, IndianRupee, Clock, Star, ChevronRight, MapPin, Check, Search,
-  BadgeCheck, Share2, ShieldCheck, Phone, Wrench
+  BadgeCheck, Share2, ShieldCheck, Phone, Wrench, Users
 } from 'lucide-react'
 import StatCard from '../shared/StatCard'
 import EmptyState from '../shared/EmptyState'
@@ -13,12 +13,13 @@ export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState(null)
   const [statsError, setStatsError] = useState(null)
+  const [thekedar, setThekedar] = useState(null)
   const recentJobs = openJobs?.slice(0, 4) || []
   const displayName = userData?.full_name || user?.full_name || 'Worker'
 
   useEffect(() => {
     let mounted = true
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
         const { count: jobsDone } = await supabase
           .from('job_applications')
@@ -42,21 +43,27 @@ export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs
             rating: userData?.rating || 0,
           })
         }
+
+        // Fetch thekedar info if linked
+        if (userData?.thekedar_id) {
+          const { data: th } = await supabase.from('users').select('full_name, phone').eq('id', userData.thekedar_id).maybeSingle()
+          if (th && mounted) setThekedar(th)
+        }
       } catch (err) {
         if (mounted) setStatsError(err.message)
       } finally {
         if (mounted) setLoading(false)
       }
     }
-    fetchStats()
+    fetchData()
     return () => { mounted = false }
-  }, [user.id, acceptedJobs?.length, userData?.rating])
+  }, [user.id, acceptedJobs?.length, userData?.rating, userData?.thekedar_id])
 
   const shareProfile = () => {
     const text = `I am on Shramik! 🛠️
 Name: ${displayName}
 Skill: ${userData?.skill || 'Skilled Worker'}
-City: ${userData?.city || 'Nashik'}
+Area: ${userData?.chowk || userData?.city || 'Nashik'}
 Contractors can hire me directly on Shramik.`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
@@ -79,20 +86,34 @@ Contractors can hire me directly on Shramik.`
                 {userData?.skill && (
                   <span className="flex items-center gap-1"><Wrench size={13} /> {userData.skill}</span>
                 )}
-                {userData?.city && (
+                {userData?.chowk && (
+                  <span className="flex items-center gap-1"><MapPin size={13} /> {userData.chowk}</span>
+                )}
+                {!userData?.chowk && userData?.city && (
                   <span className="flex items-center gap-1"><MapPin size={13} /> {userData.city}</span>
                 )}
                 <span className="flex items-center gap-1"><Phone size={13} /> {user?.phone || userData?.phone}</span>
               </div>
-              {userData?.verified ? (
-                <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-bold text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">
-                  <BadgeCheck size={13} /> Verified
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full">
-                  <ShieldCheck size={13} /> Pending Verification
-                </span>
+
+              {/* Thekedar link */}
+              {thekedar && (
+                <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-slate-400">
+                  <Users size={12} />
+                  Part of <span className="font-bold text-navy">{thekedar.full_name}</span>'s team
+                </div>
               )}
+
+              <div className="flex items-center gap-2 mt-2">
+                {userData?.verified ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">
+                    <BadgeCheck size={13} /> Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full">
+                    <ShieldCheck size={13} /> Pending Verification
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <button
@@ -106,7 +127,14 @@ Contractors can hire me directly on Shramik.`
 
       {/* Stats */}
       <div>
-        <h2 className="text-xl font-extrabold text-navy mb-4">Welcome, {displayName.split(' ')[0]} 👋</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-extrabold text-navy">Welcome, {displayName.split(' ')[0]}!</h2>
+          {userData?.chowk && (
+            <span className="text-xs text-slate-400 flex items-center gap-1">
+              <MapPin size={12} /> {userData.chowk}
+            </span>
+          )}
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {loading ? (
             <>
