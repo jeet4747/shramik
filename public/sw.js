@@ -1,19 +1,17 @@
-const CACHE_NAME = 'shramik-v1'
+const CACHE_NAME = 'shramik-v2'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/vite.svg',
   '/Shramik-Logo.png',
-  '/Shramik-Logo.svg',
 ]
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting()
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS)
     })
   )
-  self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
@@ -30,16 +28,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
+  // Network-first for JS/CSS/assets
+  if (event.request.url.includes('/assets/')) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        const clone = response.clone()
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        return response
+      }).catch(() => caches.match(event.request))
+    )
+    return
+  }
+
+  // Cache-first for everything else
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request).then((response) => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
-        }
+      return cached || fetch(event.request).then((response) => {
+        const clone = response.clone()
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
         return response
-      }).catch(() => cached)
-      return cached || fetchPromise
+      })
     })
   )
 })
