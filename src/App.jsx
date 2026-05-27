@@ -23,6 +23,7 @@ import AdminDashboard from './components/admin/AdminDashboard'
 import Verifications from './components/admin/Verifications'
 import ActivityFeed from './components/admin/ActivityFeed'
 import CityCoverage from './components/admin/CityCoverage'
+import InstallBanner from './components/InstallBanner'
 import Profile from './components/shared/Profile'
 
 export default function App() {
@@ -241,6 +242,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Toast toasts={toasts} removeToast={removeToast} />
+      <InstallBanner />
       {!isSupabaseReady && (
         <div style={{background:'#dc2626',color:'white',padding:'16px',textAlign:'center',fontSize:'14px',zIndex:99999}}>
           Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel env vars and redeploy.
