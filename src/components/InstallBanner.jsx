@@ -68,13 +68,13 @@ export default function InstallBanner() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-navy">Shramik</p>
-          <p className="text-[11px] text-slate-400">Add to Home Screen for faster access</p>
+          <p className="text-[11px] text-slate-400">{t('install_desc')}</p>
         </div>
         <button
           onClick={handleInstall}
           className="px-4 py-2 bg-saffron text-white rounded-xl text-xs font-bold hover:bg-orange-600 transition-all shrink-0"
         >
-          Install
+          {t('install_btn')}
         </button>
         <button
           onClick={() => setShow(false)}

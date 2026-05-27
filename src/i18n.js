@@ -142,6 +142,10 @@ const en = {
   th_available: 'Available',
   th_busy: 'Busy',
 
+  // Install Banner
+  install_desc: 'Add to Home Screen for faster access',
+  install_btn: 'Install',
+
   // Contractor Dashboard
   cd_post_job: 'Post a Job',
   cd_my_jobs: 'My Jobs',
@@ -279,6 +283,9 @@ const mr = {
   th_remove: 'काढा',
   th_available: 'Available',
   th_busy: 'Busy',
+
+  install_desc: 'जलद वापरासाठी होम स्क्रीन वर जोडा',
+  install_btn: 'जोडा',
 
   cd_post_job: 'पोस्ट जॉब',
   cd_my_jobs: 'माझे जॉब',
