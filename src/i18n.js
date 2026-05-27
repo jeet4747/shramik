@@ -15,9 +15,14 @@ const en = {
   hero_verified: 'Aadhaar Verified',
   hero_free: 'No Fees',
   hero_nashik: 'Nashik Based',
+  hero_count: '200+',
   hero_workers_joined: 'workers joined',
 
   // Stats
+  stat_value_workers: '200+',
+  stat_value_jobs: '50+',
+  stat_value_contractors: '15+',
+  stat_value_city: 'Nashik',
   stat_workers: 'Workers',
   stat_jobs: 'Jobs Available',
   stat_contractors: 'Contractors',
@@ -169,8 +174,14 @@ const mr = {
   hero_verified: 'आधार वेरिफाइड',
   hero_free: 'कोणतेही शुल्क नाही',
   hero_nashik: 'नाशिक मध्ये सुरू',
+  hero_count: '२००+',
   hero_workers_joined: 'workers joined',
 
+  // Stats
+  stat_value_workers: '२००+',
+  stat_value_jobs: '५०+',
+  stat_value_contractors: '१५+',
+  stat_value_city: 'नाशिक',
   stat_workers: 'Workers',
   stat_jobs: 'Jobs Available',
   stat_contractors: 'Contractors',

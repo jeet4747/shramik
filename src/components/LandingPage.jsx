@@ -94,7 +94,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
                   </div>
                 ))}
               </div>
-              <span className="text-sm font-bold text-navy ml-1">२००+ <span className="font-normal text-slate-400">{t('hero_workers_joined')}</span></span>
+              <span className="text-sm font-bold text-navy ml-1">{t('hero_count')} <span className="font-normal text-slate-400">{t('hero_workers_joined')}</span></span>
             </div>
           </div>
         </div>
@@ -104,10 +104,10 @@ const LandingPage = ({ onLogin, onRegister }) => {
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { icon: Users, value: '२००+', label: t('stat_workers') },
-              { icon: Briefcase, value: '५०+', label: t('stat_jobs') },
-              { icon: Building, value: '१५+', label: t('stat_contractors') },
-              { icon: MapPin, value: 'नाशिक', label: t('stat_city') },
+              { icon: Users, value: t('stat_value_workers'), label: t('stat_workers') },
+              { icon: Briefcase, value: t('stat_value_jobs'), label: t('stat_jobs') },
+              { icon: Building, value: t('stat_value_contractors'), label: t('stat_contractors') },
+              { icon: MapPin, value: t('stat_value_city'), label: t('stat_city') },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <s.icon size={18} className="text-saffron mx-auto mb-1" />
