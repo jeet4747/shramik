@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User, Phone, MapPin, Wrench, X, ArrowRight, CheckCircle } from "lucide-react";
+import { useLang } from "../context/LanguageContext";
 
-const SKILLS = ["इलेक्ट्रिशियन", "प्लंबर", "सुतार", "पेंटर", "मिस्त्री", "वेल्डर", "ड्रायव्हर", "इतर"];
+const SKILLS_KEY = ['electrician', 'plumber', 'carpenter', 'painter', 'mason', 'welder', 'driver', 'other'];
 
 const Register = ({ onClose, onSuccess }) => {
+  const { t } = useLang();
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -44,7 +46,7 @@ const Register = ({ onClose, onSuccess }) => {
 
     if (dbError) {
       if (dbError.code === "23505") {
-        setError("हा फोन नंबर आधीच रजिस्टर आहे. कृपया साइन इन करा.");
+        setError(t('reg_error_duplicate'));
       } else {
         setError(dbError.message);
       }
@@ -72,8 +74,8 @@ const Register = ({ onClose, onSuccess }) => {
           <div className="w-12 h-12 bg-saffron text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
             <User size={22} />
           </div>
-          <h2 className="text-xl font-black text-navy">फ्री रजिस्टर</h2>
-          <p className="text-xs text-slate-400 mt-1">२ मिनिटात रजिस्टर करा. कोणतेही शुल्क नाही.</p>
+          <h2 className="text-xl font-black text-navy">{t('reg_title')}</h2>
+          <p className="text-xs text-slate-400 mt-1">{t('reg_subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-3">
@@ -85,8 +87,8 @@ const Register = ({ onClose, onSuccess }) => {
 
           <div className="flex p-0.5 bg-slate-100 rounded-lg">
             {[
-              { key: "worker", label: "कामगार" },
-              { key: "contractor", label: "कॉन्ट्रॅक्टर" },
+              { key: "worker", label: t('reg_worker') },
+              { key: "contractor", label: t('reg_contractor') },
             ].map((r) => (
               <button
                 key={r.key}
@@ -111,7 +113,7 @@ const Register = ({ onClose, onSuccess }) => {
             <input
               type="text"
               name="full_name"
-              placeholder="पूर्ण नाव"
+              placeholder={t('reg_name_placeholder')}
               value={formData.full_name}
               onChange={handleChange}
               required
@@ -124,7 +126,7 @@ const Register = ({ onClose, onSuccess }) => {
             <input
               type="tel"
               name="phone"
-              placeholder="मोबाइल नंबर"
+              placeholder={t('reg_phone_placeholder')}
               value={formData.phone}
               onChange={handleChange}
               required
@@ -137,7 +139,7 @@ const Register = ({ onClose, onSuccess }) => {
             <input
               type="text"
               name="city"
-              placeholder="शहर"
+              placeholder={t('reg_city_placeholder')}
               value={formData.city}
               onChange={handleChange}
               required
@@ -153,27 +155,27 @@ const Register = ({ onClose, onSuccess }) => {
                 className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy cursor-pointer flex items-center justify-between"
               >
                 <span className={formData.skill ? "text-navy" : "text-slate-300"}>
-                  {formData.skill || "तुमचं कौशल्य निवडा"}
+                  {formData.skill || t('reg_skill_placeholder')}
                 </span>
                 <ArrowRight size={14} className={`text-slate-300 transition-transform ${showSkillPicker ? "rotate-90" : ""}`} />
               </div>
               {showSkillPicker && (
                 <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg z-20 p-2 grid grid-cols-2 gap-1">
-                  {SKILLS.map((s) => (
+                  {SKILLS_KEY.map((s) => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => {
-                        setFormData({ ...formData, skill: s === "इतर" ? "" : s });
+                        setFormData({ ...formData, skill: s === "other" ? "" : t(`reg_skill_${s}`) });
                         setShowSkillPicker(false);
                       }}
                       className={`p-2 rounded-lg text-xs font-bold transition-colors ${
-                        formData.skill === s
+                        formData.skill === t(`reg_skill_${s}`)
                           ? "bg-saffron text-white"
                           : "text-slate-600 hover:bg-slate-50"
                       }`}
                     >
-                      {s}
+                      {t(`reg_skill_${s}`)}
                     </button>
                   ))}
                 </div>
@@ -189,18 +191,18 @@ const Register = ({ onClose, onSuccess }) => {
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <><CheckCircle size={18} /> फ्री रजिस्टर करा</>
+              <><CheckCircle size={18} /> {t('reg_btn')}</>
             )}
           </button>
 
           <p className="text-[10px] text-center text-slate-400 pt-1">
-            आधीच रजिस्टर केलं आहे?{" "}
+            {t('reg_login_link')}{" "}
             <button
               type="button"
               onClick={onClose}
               className="text-saffron font-bold hover:underline"
             >
-              साइन इन करा
+              {t('reg_login_link_btn')}
             </button>
           </p>
         </form>

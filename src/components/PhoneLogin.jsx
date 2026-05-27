@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { X, ArrowRight, Smartphone } from "lucide-react";
+import { useLang } from '../context/LanguageContext';
 
 export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister }) {
+  const { t } = useLang();
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +28,7 @@ export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister
     }
 
     if (!data) {
-      setError('हा नंबर रजिस्टर नाही. कृपया आधी रजिस्टर करा.');
+      setError(t('login_error_not_found'));
       return;
     }
 
@@ -51,8 +53,8 @@ export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister
           <div className="w-12 h-12 bg-navy text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
             <Smartphone size={22} />
           </div>
-          <h2 className="text-xl font-black text-navy">साइन इन</h2>
-          <p className="text-xs text-slate-400 mt-1">तुमचा रजिस्टर केलेला मोबाइल नंबर टाका</p>
+          <h2 className="text-xl font-black text-navy">{t('login_title')}</h2>
+          <p className="text-xs text-slate-400 mt-1">{t('login_subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-4">
@@ -63,13 +65,13 @@ export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister
           )}
 
           <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 block">मोबाइल नंबर</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 block">{t('login_phone_label')}</label>
             <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-3 focus-within:border-navy/30 transition-colors">
               <span className="text-sm font-bold text-navy">+91</span>
               <div className="w-px h-5 bg-slate-200" />
               <input
                 type="tel"
-                placeholder="१० अंकी नंबर"
+                placeholder={t('login_phone_placeholder')}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={10}
@@ -87,18 +89,18 @@ export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister
             {loading ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <>साइन इन <ArrowRight size={16} /></>
+              <>{t('login_btn')} <ArrowRight size={16} /></>
             )}
           </button>
 
           <p className="text-[10px] text-center text-slate-400">
-            रजिस्टर केलं नाही?{" "}
+            {t('login_register_link')}{" "}
             <button
               type="button"
               onClick={onSwitchToRegister}
               className="text-saffron font-bold hover:underline"
             >
-              रजिस्टर करा
+              {t('login_register_link_btn')}
             </button>
           </p>
         </form>

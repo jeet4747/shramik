@@ -1,11 +1,13 @@
 import { X, MessageSquare, Link as LinkIcon, Check } from 'lucide-react'
 import { useState } from 'react'
+import { useLang } from '../context/LanguageContext'
 
 const SHARE_TEXT = encodeURIComponent(
   '🚀 नोकरी हवी आहे का? Shramik app वर फ्री रजिस्टर करा! कोणतेही शुल्क नाही. फक्त २ मिनिटात रजिस्टर करा.\n\nलिंक: https://shramik-eta.vercel.app'
 )
 
 export default function WhatsAppModal({ onClose }) {
+  const { t } = useLang()
   const [copied, setCopied] = useState(false)
 
   const handleWhatsAppShare = () => {
@@ -36,10 +38,9 @@ export default function WhatsAppModal({ onClose }) {
           <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <MessageSquare size={28} className="text-white" />
           </div>
-          <h2 className="text-xl font-black text-navy">तुमच्या मित्रांना सांगा!</h2>
+          <h2 className="text-xl font-black text-navy">{t('wa_modal_title')}</h2>
           <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-            तुमच्या सोबत काम करणाऱ्या लोकांना Shramik बद्दल सांगा. <br />
-            त्यांनाही फ्री मध्ये नोकरीच्या संधी मिळतील.
+            {t('wa_modal_subtitle')}
           </p>
         </div>
 
@@ -49,7 +50,7 @@ export default function WhatsAppModal({ onClose }) {
             className="w-full py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md"
           >
             <MessageSquare size={18} />
-            WhatsApp वर शेअर करा
+            {t('wa_modal_share')}
           </button>
 
           <button
@@ -59,18 +60,18 @@ export default function WhatsAppModal({ onClose }) {
             {copied ? (
               <>
                 <Check size={18} className="text-green-600" />
-                लिंक कॉपी झाली!
+                {t('wa_modal_copied')}
               </>
             ) : (
               <>
                 <LinkIcon size={18} />
-                लिंक कॉपी करा
+                {t('wa_modal_copy')}
               </>
             )}
           </button>
 
           <p className="text-[11px] text-slate-400 text-center pt-1">
-            जास्त लोक जोडले = सगळ्यांसाठी जास्त काम
+            {t('wa_modal_footer')}
           </p>
         </div>
       </div>
