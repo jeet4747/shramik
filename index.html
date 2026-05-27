@@ -25,6 +25,13 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
+      window.onerror = function(msg, url, line, col, err) {
+        var d = document.createElement('div');
+        d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc2626;color:white;padding:16px;font-size:14px;z-index:99999;font-family:sans-serif';
+        d.textContent = (err && err.stack) ? err.stack : msg;
+        document.body.prepend(d);
+      };
+    </script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').then(registration => {
