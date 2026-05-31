@@ -25,6 +25,19 @@ export default function PostJob({ user, onJobPosted, addToast }) {
 
     setSubmitting(true)
     try {
+      // Check if phone already exists with different role
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('phone', user.phone)
+        .maybeSingle()
+
+      if (existingUser && existingUser.id !== user.id) {
+        addToast?.('Phone number already registered', 'error')
+        setSubmitting(false)
+        return
+      }
+
       await supabase.from('users').upsert({
         id: user.id,
         phone: user.phone,

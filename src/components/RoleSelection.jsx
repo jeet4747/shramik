@@ -1,7 +1,26 @@
-import React from 'react';
-import { Hammer, Briefcase, ArrowRight, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Hammer, Briefcase, ArrowRight, ShieldCheck, X } from 'lucide-react';
 
 const RoleSelection = ({ onSelect }) => {
+  const [showAdminCode, setShowAdminCode] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
+  const [codeError, setCodeError] = useState('');
+
+  const handleAdminClick = () => {
+    setShowAdminCode(true);
+    setAdminCode('');
+    setCodeError('');
+  };
+
+  const handleAdminCodeSubmit = () => {
+    // MVP: Admin code is 'admin123' - change in production
+    if (adminCode.trim() === 'admin123') {
+      setShowAdminCode(false);
+      onSelect('admin');
+    } else {
+      setCodeError('Invalid admin code');
+    }
+  };
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-12">
       <div className="text-center mb-16">
@@ -45,7 +64,7 @@ const RoleSelection = ({ onSelect }) => {
         </button>
 
         <button
-          onClick={() => onSelect('admin')}
+          onClick={handleAdminClick}
           className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-purple-600 hover:shadow-xl transition-all duration-300 text-left relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 w-1 h-full bg-purple-600"></div>
@@ -60,6 +79,32 @@ const RoleSelection = ({ onSelect }) => {
           </div>
         </button>
       </div>
+
+      {showAdminCode && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 relative">
+            <button onClick={() => setShowAdminCode(false)} className="absolute top-4 right-4 text-slate-300 hover:text-slate-500"><X size={20} /></button>
+            <h3 className="text-xl font-bold text-navy mb-2">Admin Access</h3>
+            <p className="text-sm text-slate-500 mb-4">Enter admin code to access platform administration</p>
+            <input
+              type="password"
+              placeholder="Admin code"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAdminCodeSubmit()}
+              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-purple-600 mb-2"
+              autoFocus
+            />
+            {codeError && <p className="text-xs text-red-500 mb-4">{codeError}</p>}
+            <button
+              onClick={handleAdminCodeSubmit}
+              className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-colors"
+            >
+              Verify Code
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
