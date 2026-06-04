@@ -27,6 +27,7 @@ const navConfig = {
     { id: 'verify', label: 'Verifications', icon: ShieldCheck },
     { id: 'activity', label: 'Activity Feed', icon: TrendingUp },
     { id: 'cities', label: 'City Coverage', icon: MapPin },
+    { id: 'profile', label: 'Profile', icon: User },
   ],
 }
 

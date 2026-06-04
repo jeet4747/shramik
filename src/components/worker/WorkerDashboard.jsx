@@ -80,7 +80,7 @@ Contractors can hire me directly on Shramik.`
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-navy">{displayName}</h2>
-                {userData?.verified && <BadgeCheck size={18} className="text-green-500" />}
+                {userData?.is_verified && <BadgeCheck size={18} className="text-green-500" />}
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-slate-500">
                 {userData?.skill && (
@@ -104,7 +104,7 @@ Contractors can hire me directly on Shramik.`
               )}
 
               <div className="flex items-center gap-2 mt-2">
-                {userData?.verified ? (
+                {userData?.is_verified ? (
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">
                     <BadgeCheck size={13} /> Verified
                   </span>

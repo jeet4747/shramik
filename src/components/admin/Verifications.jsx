@@ -27,7 +27,7 @@ export default function Verifications({ addToast }) {
             .from('users')
             .select('id, full_name, phone, skill, city, created_at')
             .eq('role', 'worker')
-            .eq('verified', false)
+            .eq('is_verified', false)
             .order('created_at', { ascending: false })
         ])
 
@@ -64,7 +64,7 @@ export default function Verifications({ addToast }) {
     try {
       const { error: err } = await supabase
         .from('users')
-        .update({ verified: true, updated_at: new Date().toISOString() })
+        .update({ is_verified: true, updated_at: new Date().toISOString() })
         .eq('id', userId)
 
       if (err) throw err

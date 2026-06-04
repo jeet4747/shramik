@@ -5,7 +5,7 @@ export default function Wordmark() {
         src="/Shramik-Logo.png"
         alt="Shramik"
         width={175}
-        className="rounded-lg"
+        className="rounded-lg max-w-[140px] md:max-w-none"
       />
     </a>
   )

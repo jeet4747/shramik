@@ -45,7 +45,7 @@ export default function MyJobs({ user, jobs, onJobsUpdated, addToast }) {
 
       const { error: assignErr } = await supabase
         .from('jobs')
-        .update({ status: 'assigned' })
+        .update({ status: 'assigned', assigned_worker_id: workerId })
         .eq('id', jobId)
         .eq('status', 'open')
 

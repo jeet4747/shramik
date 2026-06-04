@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
-import { Search } from 'lucide-react'
+import { Search, MessageCircle } from 'lucide-react'
 import EmptyState from '../shared/EmptyState'
 import { ListSkeleton } from '../shared/LoadingSkeleton'
 import ErrorState from '../shared/ErrorState'
 
-export default function FindWorkers({ addToast }) {
+export default function FindWorkers() {
   const [workers, setWorkers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -70,12 +70,14 @@ export default function FindWorkers({ addToast }) {
                   <p className="text-sm text-slate-500">{worker.skill || 'Skilled'} • {worker.city || '—'}</p>
                 </div>
               </div>
-              <button
-                onClick={() => addToast?.('Hire request sent!', 'success')}
-                className="w-full py-2 bg-slate-900 text-white rounded-xl font-bold hover:bg-navy transition-colors"
+              <a
+                href={`https://wa.me/91${worker.phone?.replace(/\D/g, '')}?text=${encodeURIComponent('Hi! I found your profile on Shramik and would like to hire you.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-2 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors"
               >
-                Hire Now
-              </button>
+                <MessageCircle size={16} /> Contact on WhatsApp
+              </a>
             </div>
           ))}
         </div>

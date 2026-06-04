@@ -15,11 +15,6 @@ export default function ThekedarDashboard({ user, addToast }) {
   const [workers, setWorkers] = useState([])
   const [showAddWorker, setShowAddWorker] = useState(false)
 
-  useEffect(() => {
-    fetchTeam()
-    fetchAvailableWorkers()
-  }, [user])
-
   const fetchTeam = async () => {
     const { data } = await supabase.from('users').select('*').eq('thekedar_id', user.id)
     if (Array.isArray(data)) setTeam(data)
@@ -33,6 +28,12 @@ export default function ThekedarDashboard({ user, addToast }) {
       .is('thekedar_id', null)
     if (Array.isArray(data)) setWorkers(data.filter(w => w.id !== user.id))
   }
+
+  useEffect(() => {
+    fetchTeam()
+    fetchAvailableWorkers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const addToTeam = async (workerId) => {
     const { error } = await supabase.from('users').update({ thekedar_id: user.id }).eq('id', workerId)
@@ -55,8 +56,8 @@ export default function ThekedarDashboard({ user, addToast }) {
       {/* Tab bar */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl max-w-md">
         {[
-          { key: 'team', label: `My Team (${team.length})`, icon: Users },
-          { key: 'find', label: 'Find Workers', icon: Search },
+          { key: 'team', label: `${t('th_my_team')} (${team.length})`, icon: Users },
+          { key: 'find', label: t('th_find_workers'), icon: Search },
         ].map(tabItem => (
           <button
             key={tabItem.key}
@@ -85,8 +86,8 @@ export default function ThekedarDashboard({ user, addToast }) {
           {team.length === 0 ? (
             <div className="bg-slate-50 rounded-xl p-8 text-center border border-dashed border-slate-200">
               <Users size={32} className="text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-bold text-navy">No team members yet</p>
-              <p className="text-xs text-slate-400 mt-1">Add workers to your team so they get your job alerts</p>
+              <p className="text-sm font-bold text-navy">{t('th_no_team')}</p>
+              <p className="text-xs text-slate-400 mt-1">{t('th_no_team_desc')}</p>
             </div>
           ) : (
             <div className="grid gap-2">
@@ -98,7 +99,7 @@ export default function ThekedarDashboard({ user, addToast }) {
                       {w.skill && <span className="flex items-center gap-1"><Wrench size={12} /> {w.skill}</span>}
                       <span className="flex items-center gap-1"><Phone size={12} /> {w.phone}</span>
                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${w.available ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                        {w.available ? 'Available' : 'Busy'}
+                        {w.available ? t('th_available') : t('th_busy')}
                       </span>
                     </div>
                   </div>
@@ -122,8 +123,8 @@ export default function ThekedarDashboard({ user, addToast }) {
           {workers.length === 0 ? (
             <div className="bg-slate-50 rounded-xl p-8 text-center border border-dashed border-slate-200">
               <Search size={32} className="text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-bold text-navy">No workers found</p>
-              <p className="text-xs text-slate-400 mt-1">Workers who register will appear here</p>
+              <p className="text-sm font-bold text-navy">{t('th_no_workers')}</p>
+              <p className="text-xs text-slate-400 mt-1">{t('th_no_team_desc')}</p>
             </div>
           ) : (
             <div className="grid gap-2">
@@ -136,7 +137,7 @@ export default function ThekedarDashboard({ user, addToast }) {
                         {w.skill && <span className="flex items-center gap-1"><Wrench size={12} /> {w.skill}</span>}
                         <span className="flex items-center gap-1"><MapPin size={12} /> {w.city || 'Nashik'}</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${w.available !== false ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                          {w.available !== false ? 'Available' : 'Busy'}
+                          {                          w.available !== false ? t('th_available') : t('th_busy')}
                         </span>
                       </div>
                     </div>

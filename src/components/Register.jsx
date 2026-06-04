@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User, Phone, MapPin, Wrench, X, ArrowRight, CheckCircle, Users } from "lucide-react";
 import { useLang } from "../context/LanguageContext";
@@ -41,6 +41,7 @@ const Register = ({ onClose, onSuccess }) => {
     const payload = {
       id, phone: formData.phone.trim(), full_name: formData.full_name.trim(),
       role: formData.role, city: formData.city.trim(),
+      is_verified: false,
     };
     if (formData.role === 'worker') {
       payload.skill = formData.skill.trim() || null;
