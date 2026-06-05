@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 
 const SHARE_TEXT = encodeURIComponent(
-  '🚀 नोकरी हवी आहे का? Shramik app वर फ्री रजिस्टर करा! कोणतेही शुल्क नाही. फक्त २ मिनिटात रजिस्टर करा.\n\nलिंक: https://shramik-eta.vercel.app'
+  '🚀 नोकरी हवी आहे का? Shramik app वर फ्री रजिस्टर करा! कोणतेही शुल्क नाही. फक्त २ मिनिटात रजिस्टर करा.\n\nलिंक: https://shramikapp.in'
 )
 
 export default function WhatsAppModal({ onClose }) {
@@ -16,11 +16,11 @@ export default function WhatsAppModal({ onClose }) {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText('https://shramik-eta.vercel.app')
+      await navigator.clipboard.writeText('https://shramikapp.in')
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      alert('लिंक कॉपी करण्यात अडचण आली. लिंक: https://shramik-eta.vercel.app')
+      alert('लिंक कॉपी करण्यात अडचण आली. लिंक: https://shramikapp.in')
     }
   }
 
