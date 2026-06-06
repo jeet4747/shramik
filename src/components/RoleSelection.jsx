@@ -12,9 +12,10 @@ const RoleSelection = ({ onSelect }) => {
     setCodeError('');
   };
 
+  const ADMIN_CODE = import.meta.env.VITE_ADMIN_CODE
+
   const handleAdminCodeSubmit = () => {
-    // MVP: Admin code is 'admin123' - change in production
-    if (adminCode.trim() === 'admin123') {
+    if (adminCode.trim() === ADMIN_CODE) {
       setShowAdminCode(false);
       onSelect('admin');
     } else {
