@@ -11,7 +11,7 @@ export default function Header({ role, activeTab, userInitials, avatarUrl, avail
         {role === 'worker' && (
           <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full border border-slate-200">
             <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${available ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
-            <span className="text-[10px] md:text-sm font-semibold text-slate-600">{available ? 'Available' : 'Busy'}</span>
+            <span className="hidden sm:inline text-[10px] md:text-sm font-semibold text-slate-600">{available ? 'Available' : 'Busy'}</span>
             <button
               onClick={() => {
                 onToggleAvailability()

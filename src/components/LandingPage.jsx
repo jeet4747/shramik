@@ -192,7 +192,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
               { icon: Building, value: contractorsCount.count, label: t('stat_contractors'), suffix: '+', color: 'from-green-500 to-emerald-600' },
               { icon: MapPin, value: 1, label: 'City Active', suffix: '', color: 'from-purple-500 to-purple-600', display: 'Nashik' },
             ].map((s, i) => (
-              <div key={i} ref={s.display ? null : (s.icon === Users ? workersCount.ref : s.icon === Briefcase ? jobsCount.ref : contractorsCount.ref)} className={`bg-white rounded-2xl p-6 border border-slate-100 shadow-sm text-center hover:shadow-md transition-shadow ${i === 3 ? 'md:col-span-1' : ''}`}>
+              <div key={i} ref={s.display ? null : (s.icon === Users ? workersCount.ref : s.icon === Briefcase ? jobsCount.ref : contractorsCount.ref)} className={`bg-white rounded-2xl p-4 md:p-6 border border-slate-100 shadow-sm text-center hover:shadow-md transition-shadow ${i === 3 ? 'md:col-span-1' : ''}`}>
                 <div className={`w-12 h-12 bg-gradient-to-br ${s.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md`}>
                   <s.icon size={22} className="text-white" />
                 </div>

@@ -30,12 +30,12 @@ export default function MobileNav({ role, activeTab, onTabChange, onLogout }) {
   const items = navConfig[role] || []
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-2 py-1 flex justify-between items-center z-50 overflow-x-auto gap-1">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-2 py-1 flex items-center z-50 overflow-x-auto gap-0.5">
       {items.map((item) => (
         <button
           key={item.id}
           onClick={() => onTabChange(item.id)}
-          className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all min-w-[48px] ${
+          className={`flex flex-col items-center gap-0.5 px-1.5 py-1.5 rounded-lg transition-all min-w-[44px] ${
             activeTab === item.id ? 'text-navy' : 'text-slate-400'
           }`}
         >
@@ -45,14 +45,14 @@ export default function MobileNav({ role, activeTab, onTabChange, onLogout }) {
       ))}
       <button
         onClick={() => onTabChange('profile')}
-        className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all min-w-[48px] ${
+        className={`flex flex-col items-center gap-0.5 px-1.5 py-1.5 rounded-lg transition-all min-w-[44px] ${
           activeTab === 'profile' ? 'text-navy' : 'text-slate-400'
         }`}
       >
         <User size={20} />
         <span className="text-[9px] font-bold leading-tight">Profile</span>
       </button>
-      <button onClick={onLogout} className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[48px] text-red-400">
+      <button onClick={onLogout} className="flex flex-col items-center gap-0.5 px-1.5 py-1.5 rounded-lg min-w-[44px] text-red-400">
         <LogOut size={20} />
         <span className="text-[9px] font-bold leading-tight">Exit</span>
       </button>
