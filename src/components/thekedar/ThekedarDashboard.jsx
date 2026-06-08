@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import { Users, Briefcase, Search, UserPlus, X, MapPin, Phone, Wrench, Clock, User } from 'lucide-react'
 import { useLang } from '../../context/LanguageContext'
+import WhatsAppGroupBanner from '../worker/WhatsAppGroupBanner'
 
 const SKILLS_MR = {
   electrician: 'इलेक्ट्रिशियन', plumber: 'प्लंबर', carpenter: 'सुतार',
@@ -119,7 +120,9 @@ export default function ThekedarDashboard({ user, addToast }) {
   }
 
   return (
-    <div className="space-y-4">
+    <>
+      <WhatsAppGroupBanner city="Nashik" />
+      <div className="space-y-4">
       {/* Tab bar */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl max-w-md">
         {[
@@ -322,5 +325,6 @@ export default function ThekedarDashboard({ user, addToast }) {
         </div>
       )}
     </div>
+    </>
   )
 }

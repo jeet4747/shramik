@@ -8,6 +8,7 @@ import StatCard from '../shared/StatCard'
 import EmptyState from '../shared/EmptyState'
 import ErrorState from '../shared/ErrorState'
 import { CardSkeleton } from '../shared/LoadingSkeleton'
+import WhatsAppGroupBanner from './WhatsAppGroupBanner'
 
 export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs, onApply, onViewJobs, addToast }) {
   const [loading, setLoading] = useState(true)
@@ -217,6 +218,9 @@ Contractors can hire me directly on Shramik.`
           )}
         </div>
       </div>
+
+      {/* WhatsApp Group */}
+      <WhatsAppGroupBanner city={userData?.city || 'Nashik'} />
 
       {/* Jobs */}
       <section>

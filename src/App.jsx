@@ -85,13 +85,19 @@ export default function App() {
         }
 
         if (data && !cancelled) {
-          const session = { id: data.id, phone: data.phone, role: data.role }
+          // Use the role the user chose (from localStorage), not what DB says
+          // This ensures admin doesn't lose their role on refresh
+          const role = user.role || data.role
+          const session = { id: data.id, phone: data.phone, role }
           localStorage.setItem('shramik_user', JSON.stringify(session))
           if (data.id !== user.id) setUser(session)
+          if (data.role !== role) {
+            await supabase.from('users').update({ role }).eq('id', data.id)
+          }
           setUserData(data)
-          if (data.role) {
-            setRole(data.role)
-            setActiveTab(data.role === 'admin' ? 'stats' : 'home')
+          if (role) {
+            setRole(role)
+            setActiveTab(role === 'admin' ? 'stats' : 'home')
           }
         }
       } catch {
