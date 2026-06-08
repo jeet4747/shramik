@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
-import { BadgeCheck, UserCheck, X, Upload, Camera, FileText, MapPin, User } from 'lucide-react'
+import { BadgeCheck, UserCheck, X, Upload, Camera, FileText, MapPin, User, Check } from 'lucide-react'
 import Badge from '../shared/Badge'
 import EmptyState from '../shared/EmptyState'
 import { TableSkeleton } from '../shared/LoadingSkeleton'
@@ -114,7 +114,7 @@ export default function Verifications({ addToast }) {
         .upsert({
           user_id: selectedUser.id,
           ...urls,
-          status: 'verified',
+          status: 'submitted',
           submitted_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' })
