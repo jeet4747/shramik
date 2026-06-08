@@ -68,13 +68,26 @@ export default function App() {
     let cancelled = false
     const fetchData = async () => {
       try {
-        const { data } = await supabase
+        let { data } = await supabase
           .from('users')
           .select('*')
           .eq('id', user.id)
           .maybeSingle()
 
+        // Fallback: if ID not found (e.g. after DB reset), find by phone
+        if (!data && user.phone) {
+          const { data: byPhone } = await supabase
+            .from('users')
+            .select('*')
+            .eq('phone', user.phone)
+            .maybeSingle()
+          if (byPhone) data = byPhone
+        }
+
         if (data && !cancelled) {
+          const session = { id: data.id, phone: data.phone, role: data.role }
+          localStorage.setItem('shramik_user', JSON.stringify(session))
+          if (data.id !== user.id) setUser(session)
           setUserData(data)
           if (data.role) {
             setRole(data.role)
@@ -299,12 +312,20 @@ export default function App() {
                       acceptedJobs={acceptedJobs}
                       onApply={applyToJob}
                       onViewJobs={() => setActiveTab('jobs')}
+                      addToast={addToast}
                     />
                   )}
                   {activeTab === 'jobs' && (
                     <FindJobs jobs={openJobs} acceptedJobs={acceptedJobs} onApply={applyToJob} />
                   )}
-                  {activeTab === 'mywork' && <MyWork applications={myApplications} />}
+                  {activeTab === 'mywork' && (
+                    <MyWork
+                      applications={myApplications}
+                      user={user}
+                      addToast={addToast}
+                      onMarkComplete={fetchMyApplications}
+                    />
+                  )}
                   {activeTab === 'earnings' && <Earnings user={user} />}
                 </>
               )}

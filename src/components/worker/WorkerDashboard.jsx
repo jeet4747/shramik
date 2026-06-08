@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import {
   CheckCircle2, IndianRupee, Clock, Star, ChevronRight, MapPin, Check, Search,
-  BadgeCheck, Share2, ShieldCheck, Phone, Wrench, Users
+  BadgeCheck, Share2, ShieldCheck, Phone, Wrench, Users, UserPlus, X
 } from 'lucide-react'
 import StatCard from '../shared/StatCard'
 import EmptyState from '../shared/EmptyState'
 import ErrorState from '../shared/ErrorState'
 import { CardSkeleton } from '../shared/LoadingSkeleton'
 
-export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs, onApply, onViewJobs }) {
+export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs, onApply, onViewJobs, addToast }) {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState(null)
   const [statsError, setStatsError] = useState(null)
   const [thekedar, setThekedar] = useState(null)
+  const [invites, setInvites] = useState([])
   const recentJobs = openJobs?.slice(0, 4) || []
   const displayName = userData?.full_name || user?.full_name || 'Worker'
 
@@ -59,6 +60,35 @@ export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs
     return () => { mounted = false }
   }, [user.id, acceptedJobs?.length, userData?.rating, userData?.thekedar_id])
 
+  // Fetch pending team invites
+  useEffect(() => {
+    let mounted = true
+    const fetchInvites = async () => {
+      const { data } = await supabase
+        .from('team_invites')
+        .select('*, thekedar:thekedar_id(full_name, phone)')
+        .eq('worker_id', user.id)
+        .eq('status', 'pending')
+      if (Array.isArray(data) && mounted) setInvites(data)
+    }
+    fetchInvites()
+    return () => { mounted = false }
+  }, [user.id])
+
+  const acceptInvite = async (invite) => {
+    await supabase.from('users').update({ thekedar_id: invite.thekedar_id }).eq('id', user.id)
+    await supabase.from('team_invites').update({ status: 'accepted' }).eq('id', invite.id)
+    setThekedar({ full_name: invite.thekedar?.full_name, phone: invite.thekedar?.phone })
+    setInvites(prev => prev.filter(i => i.id !== invite.id))
+    addToast('You joined ' + (invite.thekedar?.full_name || 'the team') + '!', 'success')
+  }
+
+  const rejectInvite = async (invite) => {
+    await supabase.from('team_invites').update({ status: 'rejected' }).eq('id', invite.id)
+    setInvites(prev => prev.filter(i => i.id !== invite.id))
+    addToast('Invite declined', 'info')
+  }
+
   const shareProfile = () => {
     const text = `I am on Shramik! 🛠️
 Name: ${displayName}
@@ -70,6 +100,39 @@ Contractors can hire me directly on Shramik.`
 
   return (
     <div className="space-y-6">
+      {/* Pending Invites */}
+      {invites.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+          <h3 className="text-sm font-bold text-blue-700 mb-3 flex items-center gap-2">
+            <Users size={16} /> Team Invites ({invites.length})
+          </h3>
+          <div className="space-y-2">
+            {invites.map(inv => (
+              <div key={inv.id} className="bg-white rounded-xl p-3 border border-blue-100 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-navy">{inv.thekedar?.full_name || 'Thekedar'}</p>
+                  <p className="text-xs text-slate-400">{inv.thekedar?.phone}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => rejectInvite(inv)}
+                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                  <button
+                    onClick={() => acceptInvite(inv)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-navy text-white rounded-lg text-xs font-bold hover:bg-navy-light transition-all"
+                  >
+                    <Check size={14} /> Accept
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Profile Card */}
       <div className="bg-white rounded-2xl border border-slate-100 p-5 md:p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">

@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import { User, Phone, MapPin, Wrench, X, ArrowRight, CheckCircle, Users } from "lucide-react";
+import { User, Phone, MapPin, Wrench, X, ArrowRight, CheckCircle, Users, ChevronDown } from "lucide-react";
 import { useLang } from "../context/LanguageContext";
 
 const SKILLS_KEY = ['electrician', 'plumber', 'carpenter', 'painter', 'mason', 'welder', 'driver', 'helper', 'other'];
 
-const NASHIK_CHOWKS = [
-  'Nashik MIDC', 'Ambad MIDC', 'Satpur MIDC', 'Gangapur Road',
-  'Panchavati', 'CIDCO', 'Trimbak Road', 'Dindori Road',
-  'College Road', 'Mhasrul', 'Dwarka', 'Indira Nagar',
-  'Bhadrakali', 'Ravivar Karanja', 'Other',
-];
+const CITIES = {
+  'Nashik': ['Nashik MIDC', 'Ambad MIDC', 'Satpur MIDC', 'Gangapur Road', 'Panchavati', 'CIDCO', 'Trimbak Road', 'Dindori Road', 'College Road', 'Mhasrul', 'Dwarka', 'Indira Nagar', 'Bhadrakali', 'Ravivar Karanja', 'Other'],
+  'Pune': ['Hinjewadi', 'Bhosari', 'Chinchwad', 'Pimpri', 'Hadapsar', 'Kharadi', 'Baner', 'Wagholi', 'Shivajinagar', 'Katraj', 'Swargate', 'Kondhwa', 'Other'],
+};
 
 const Register = ({ onClose, onSuccess }) => {
   const { t } = useLang();
@@ -19,13 +17,14 @@ const Register = ({ onClose, onSuccess }) => {
     phone: "",
     role: "worker",
     skill: "",
-    city: "नाशिक",
+    city: "Nashik",
     chowk: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSkillPicker, setShowSkillPicker] = useState(false);
   const [showChowkPicker, setShowChowkPicker] = useState(false);
+  const [showCityPicker, setShowCityPicker] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -112,10 +111,24 @@ const Register = ({ onClose, onSuccess }) => {
               className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
           </div>
 
+          {/* City selector */}
           <div className="relative">
-            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-            <input type="text" name="city" placeholder={t('reg_city_placeholder')} value={formData.city} onChange={handleChange} required
-              className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
+            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 z-10" />
+            <div onClick={() => { setShowCityPicker(!showCityPicker); setShowChowkPicker(false); setShowSkillPicker(false) }}
+              className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy cursor-pointer flex items-center justify-between"
+            >
+              <span>{formData.city}</span>
+              <ChevronDown size={14} className={`text-slate-300 transition-transform ${showCityPicker ? "rotate-180" : ""}`} />
+            </div>
+            {showCityPicker && (
+              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg z-20 p-2">
+                {Object.keys(CITIES).map((city) => (
+                  <button key={city} type="button" onClick={() => { setFormData({ ...formData, city, chowk: '' }); setShowCityPicker(false) }}
+                    className={`w-full p-2 rounded-lg text-xs font-bold text-left transition-colors ${formData.city === city ? "bg-navy text-white" : "text-slate-600 hover:bg-slate-50"}`}
+                  >{city}</button>
+                ))}
+              </div>
+            )}
           </div>
 
           {formData.role === "worker" && (
@@ -123,7 +136,7 @@ const Register = ({ onClose, onSuccess }) => {
               {/* Chowk picker */}
               <div className="relative">
                 <Users size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 z-10" />
-                <div onClick={() => { setShowChowkPicker(!showChowkPicker); setShowSkillPicker(false) }}
+                <div onClick={() => { setShowChowkPicker(!showChowkPicker); setShowSkillPicker(false); setShowCityPicker(false) }}
                   className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy cursor-pointer flex items-center justify-between"
                 >
                   <span className={formData.chowk ? "text-navy" : "text-slate-300"}>{formData.chowk || 'तुमचं चौक निवडा'}</span>
@@ -131,7 +144,7 @@ const Register = ({ onClose, onSuccess }) => {
                 </div>
                 {showChowkPicker && (
                   <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg z-20 p-2 max-h-48 overflow-y-auto">
-                    {NASHIK_CHOWKS.map((c) => (
+                    {(CITIES[formData.city] || []).map((c) => (
                       <button key={c} type="button" onClick={() => { setFormData({ ...formData, chowk: c }); setShowChowkPicker(false) }}
                         className={`w-full p-2 rounded-lg text-xs font-bold text-left transition-colors ${formData.chowk === c ? "bg-navy text-white" : "text-slate-600 hover:bg-slate-50"}`}
                       >{c}</button>
@@ -143,7 +156,7 @@ const Register = ({ onClose, onSuccess }) => {
               {/* Skill picker */}
               <div className="relative">
                 <Wrench size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 z-10" />
-                <div onClick={() => { setShowSkillPicker(!showSkillPicker); setShowChowkPicker(false) }}
+                <div onClick={() => { setShowSkillPicker(!showSkillPicker); setShowChowkPicker(false); setShowCityPicker(false) }}
                   className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy cursor-pointer flex items-center justify-between"
                 >
                   <span className={formData.skill ? "text-navy" : "text-slate-300"}>{formData.skill || t('reg_skill_placeholder')}</span>

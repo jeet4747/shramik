@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
-import { BadgeCheck, UserCheck } from 'lucide-react'
+import { BadgeCheck, UserCheck, X, Upload, Camera, FileText, MapPin, User } from 'lucide-react'
 import Badge from '../shared/Badge'
 import EmptyState from '../shared/EmptyState'
 import { TableSkeleton } from '../shared/LoadingSkeleton'
 import ErrorState from '../shared/ErrorState'
+
+const ICON_MAP = { aadhaar: FileText, pan: FileText, selfie: Camera, chowk_photo: MapPin }
+const LABEL_MAP = { aadhaar: 'Aadhaar Card', pan: 'PAN Card', selfie: 'Selfie', chowk_photo: 'Chowk Location' }
 
 export default function Verifications({ addToast }) {
   const [queue, setQueue] = useState([])
@@ -12,6 +15,11 @@ export default function Verifications({ addToast }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [tab, setTab] = useState('pending')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [files, setFiles] = useState({ aadhaar: null, pan: null, selfie: null, chowk_photo: null })
+  const [previews, setPreviews] = useState({ aadhaar: null, pan: null, selfie: null, chowk_photo: null })
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -45,6 +53,91 @@ export default function Verifications({ addToast }) {
     return () => { mounted = false }
   }, [])
 
+  useEffect(() => {
+    return () => {
+      Object.values(previews).forEach((p) => { if (p) URL.revokeObjectURL(p) })
+    }
+  }, [previews])
+
+  const openModal = (user) => {
+    setSelectedUser(user)
+    setFiles({ aadhaar: null, pan: null, selfie: null, chowk_photo: null })
+    setPreviews({ aadhaar: null, pan: null, selfie: null, chowk_photo: null })
+    setModalOpen(true)
+  }
+
+  const closeModal = () => {
+    Object.values(previews).forEach((p) => { if (p) URL.revokeObjectURL(p) })
+    setModalOpen(false)
+    setSelectedUser(null)
+    setFiles({ aadhaar: null, pan: null, selfie: null, chowk_photo: null })
+    setPreviews({ aadhaar: null, pan: null, selfie: null, chowk_photo: null })
+  }
+
+  const handleFileChange = (field, file) => {
+    if (previews[field]) URL.revokeObjectURL(previews[field])
+    setFiles((prev) => ({ ...prev, [field]: file }))
+    setPreviews((prev) => ({ ...prev, [field]: file ? URL.createObjectURL(file) : null }))
+  }
+
+  const uploadFile = async (file, userId, field) => {
+    const ext = file.name.split('.').pop()
+    const path = `${userId}/${field}_${Date.now()}.${ext}`
+    const { error: uploadErr } = await supabase.storage
+      .from('verifications')
+      .upload(path, file, { upsert: true })
+    if (uploadErr) throw uploadErr
+    const { data: { publicUrl } } = supabase.storage
+      .from('verifications')
+      .getPublicUrl(path)
+    return publicUrl
+  }
+
+  const submitVerification = async () => {
+    if (!selectedUser) return
+    const required = ['aadhaar', 'pan', 'selfie', 'chowk_photo']
+    const missing = required.filter((f) => !files[f])
+    if (missing.length) {
+      addToast?.(`Please upload: ${missing.map((f) => LABEL_MAP[f]).join(', ')}`, 'error')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const urls = {}
+      for (const field of required) {
+        urls[`${field}_url`] = await uploadFile(files[field], selectedUser.id, field)
+      }
+
+      const { error: upsertErr } = await supabase
+        .from('verification_documents')
+        .upsert({
+          user_id: selectedUser.id,
+          ...urls,
+          status: 'verified',
+          submitted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' })
+
+      if (upsertErr) throw upsertErr
+
+      const { error: userErr } = await supabase
+        .from('users')
+        .update({ is_verified: true, updated_at: new Date().toISOString() })
+        .eq('id', selectedUser.id)
+
+      if (userErr) throw userErr
+
+      setUnverified((prev) => prev.filter((u) => u.id !== selectedUser.id))
+      addToast?.('Worker verified successfully!', 'success')
+      closeModal()
+    } catch (err) {
+      addToast?.(err.message || 'Upload failed', 'error')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const updateStatus = async (id, status) => {
     try {
       const { error: err } = await supabase
@@ -55,21 +148,6 @@ export default function Verifications({ addToast }) {
       if (err) throw err
       setQueue(queue.filter((v) => v.id !== id))
       addToast?.(`Verification ${status}`, status === 'approved' ? 'success' : 'error')
-    } catch (err) {
-      addToast?.(err.message || 'Error', 'error')
-    }
-  }
-
-  const verifyUser = async (userId) => {
-    try {
-      const { error: err } = await supabase
-        .from('users')
-        .update({ is_verified: true, updated_at: new Date().toISOString() })
-        .eq('id', userId)
-
-      if (err) throw err
-      setUnverified(unverified.filter((u) => u.id !== userId))
-      addToast?.('Worker verified successfully!', 'success')
     } catch (err) {
       addToast?.(err.message || 'Error', 'error')
     }
@@ -171,7 +249,7 @@ export default function Verifications({ addToast }) {
                       <td className="px-5 py-3 text-slate-500">{u.city || '—'}</td>
                       <td className="px-5 py-3">
                         <button
-                          onClick={() => verifyUser(u.id)}
+                          onClick={() => openModal(u)}
                           className="px-3 py-1.5 bg-navy text-white rounded-lg text-xs font-bold hover:bg-navy-light transition-colors flex items-center gap-1"
                         >
                           <BadgeCheck size={14} /> Verify
@@ -183,6 +261,79 @@ export default function Verifications({ addToast }) {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Verification Document Modal */}
+      {modalOpen && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between z-10">
+              <div className="flex items-center gap-2">
+                <User size={18} className="text-navy" />
+                <div>
+                  <h3 className="font-bold text-navy text-sm">Upload Verification Documents</h3>
+                  <p className="text-xs text-slate-400">{selectedUser.full_name}</p>
+                </div>
+              </div>
+              <button onClick={closeModal} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {['aadhaar', 'pan', 'selfie', 'chowk_photo'].map((field) => {
+                const Icon = ICON_MAP[field]
+                const label = LABEL_MAP[field]
+                return (
+                  <div key={field}>
+                    <label className="flex items-center gap-2 text-xs font-bold text-navy mb-1.5">
+                      <Icon size={14} /> {label}
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <label className="flex-1 flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-navy/40 transition-colors text-xs text-slate-400">
+                        <Upload size={14} />
+                        <span>{files[field] ? files[field].name : 'Choose file...'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleFileChange(field, e.target.files[0])}
+                        />
+                      </label>
+                      {previews[field] && (
+                        <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                          <img src={previews[field]} alt={label} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4">
+              <button
+                onClick={submitVerification}
+                disabled={uploading}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#f97316] text-white rounded-lg text-sm font-bold hover:bg-[#e8630e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {uploading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Check size={16} /> Submit Verification
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

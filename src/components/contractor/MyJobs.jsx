@@ -54,6 +54,8 @@ export default function MyJobs({ user, jobs, onJobsUpdated, addToast }) {
       await supabase.from('job_applications').update({ status: 'hired' }).eq('job_id', jobId).eq('worker_id', workerId)
       await supabase.from('job_applications').update({ status: 'rejected' }).eq('job_id', jobId).neq('worker_id', workerId)
 
+      await supabase.from('users').update({ available: false }).eq('id', workerId)
+
       addToast?.('Worker assigned successfully', 'success')
       setApplications([])
       setSelectedJob(null)
