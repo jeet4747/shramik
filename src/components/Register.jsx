@@ -82,6 +82,10 @@ export default function Register({ onClose, onSuccess }) {
     } catch (err) {
       if (err.message?.includes('already')) {
         setError("This phone is already registered. Try signing in.");
+      } else if (err.message?.includes('unverified') || err.message?.includes('Trial')) {
+        // Twilio trial account — fall back to dummy OTP
+        setStep('otp');
+        startCooldown();
       } else {
         setError(err.message || "Failed to send OTP. Please try again.");
       }
@@ -160,7 +164,11 @@ export default function Register({ onClose, onSuccess }) {
       });
       startCooldown();
     } catch (err) {
-      setError(err.message || "Failed to resend OTP");
+      if (err.message?.includes('unverified') || err.message?.includes('Trial')) {
+        startCooldown();
+      } else {
+        setError(err.message || "Failed to resend OTP");
+      }
     } finally {
       setIsLoading(false);
     }

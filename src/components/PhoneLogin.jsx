@@ -51,6 +51,9 @@ export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister
     } catch (err) {
       if (err.message?.includes('not found') || err.message?.includes('disabled')) {
         setError('This number is not registered. Please register first.');
+      } else if (err.message?.includes('unverified') || err.message?.includes('Trial')) {
+        setStep('otp');
+        startCooldown();
       } else {
         setError(err.message || 'Failed to send OTP');
       }
@@ -134,7 +137,11 @@ export default function PhoneLogin({ onLoginSuccess, onClose, onSwitchToRegister
       await supabase.auth.signInWithOtp({ phone: fPhone });
       startCooldown();
     } catch (err) {
-      setError(err.message || 'Failed to resend OTP');
+      if (err.message?.includes('unverified') || err.message?.includes('Trial')) {
+        startCooldown();
+      } else {
+        setError(err.message || 'Failed to resend OTP');
+      }
     } finally {
       setLoading(false);
     }
