@@ -64,7 +64,6 @@ const thekedarBenefits = [
 const LandingPage = ({ onLogin, onRegister }) => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
-  const [activeWorker, setActiveWorker] = useState(0)
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const { t } = useLang()
 

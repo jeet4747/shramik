@@ -12,7 +12,7 @@ const CHOWKS = {
   'Pune': ['Hinjewadi', 'Bhosari', 'Chinchwad', 'Pimpri', 'Hadapsar', 'Kharadi'],
 }
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -69,8 +69,20 @@ export default function AdminDashboard({ user }) {
     setSeeding(true)
     setSeedMsg(null)
     try {
+      const { data: contractors } = await supabase
+        .from('users')
+        .select('id')
+        .eq('role', 'contractor')
+        .limit(1)
+
+      if (!contractors || contractors.length === 0) {
+        setSeedMsg({ type: 'error', text: 'No contractors registered. Register a contractor first.' })
+        setSeeding(false)
+        return
+      }
+
       const { error: err } = await supabase.from('jobs').insert({
-        contractor_id: user.id,
+        contractor_id: contractors[0].id,
         title: demoForm.title,
         trade_needed: demoForm.trade,
         location: `${demoForm.chowk}, ${demoForm.city}`,
@@ -78,7 +90,7 @@ export default function AdminDashboard({ user }) {
         status: 'open',
       })
       if (err) throw err
-      setSeedMsg({ type: 'success', text: `Demo job "${demoForm.title}" created!` })
+      setSeedMsg({ type: 'success', text: `Demo job "${demoForm.title}" created under ${contractors[0].id.slice(0,8)}!` })
       setStats(prev => prev ? { ...prev, activeJobs: prev.activeJobs + 1 } : prev)
       setShowDemoForm(false)
     } catch (err) {

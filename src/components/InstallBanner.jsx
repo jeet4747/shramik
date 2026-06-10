@@ -6,16 +6,11 @@ export default function InstallBanner() {
   const { t } = useLang()
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [show, setShow] = useState(false)
-  const [installed, setInstalled] = useState(false)
+  const [installed, setInstalled] = useState(
+    () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+  )
 
   useEffect(() => {
-    // Check if already in standalone mode (already installed)
-    if (window.matchMedia('(display-mode: standalone)').matches ||
-        window.navigator.standalone === true) {
-      setInstalled(true)
-      return
-    }
-
     const handler = (e) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -24,13 +19,11 @@ export default function InstallBanner() {
 
     window.addEventListener('beforeinstallprompt', handler)
 
-    // Also detected installed app
     window.addEventListener('appinstalled', () => {
       setInstalled(true)
       setShow(false)
     })
 
-    // Show banner after 3 seconds even without beforeinstallprompt (iOS fallback)
     const timer = setTimeout(() => {
       if (!deferredPrompt && !installed) {
         setShow(true)
@@ -41,6 +34,7 @@ export default function InstallBanner() {
       window.removeEventListener('beforeinstallprompt', handler)
       clearTimeout(timer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleInstall = async () => {

@@ -5,7 +5,7 @@ import Badge from '../shared/Badge'
 import EmptyState from '../shared/EmptyState'
 import { ListSkeleton } from '../shared/LoadingSkeleton'
 
-export default function MyWork({ applications, loading, user, addToast, onMarkComplete }) {
+export default function MyWork({ applications, loading, addToast, onMarkComplete }) {
   const [showCompleteModal, setShowCompleteModal] = useState(false)
   const [selectedApp, setSelectedApp] = useState(null)
   const [photoFile, setPhotoFile] = useState(null)
@@ -14,7 +14,7 @@ export default function MyWork({ applications, loading, user, addToast, onMarkCo
   const [uploading, setUploading] = useState(false)
 
   const assigned = applications?.filter(
-    (app) => app.status === 'hired' || app.status === 'accepted' || (app.jobs?.status === 'assigned' && app.jobs?.assigned_worker_id === applications[0]?.worker_id)
+    (app) => app.status === 'hired' || (app.jobs?.status === 'assigned' && app.jobs?.assigned_worker_id === applications[0]?.worker_id)
   ) || []
 
   if (loading) return <ListSkeleton rows={4} />
