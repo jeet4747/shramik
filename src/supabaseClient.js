@@ -57,7 +57,7 @@ export const supabase = isConfigured
   : dummyClient
 
 export const isSupabaseReady = isConfigured
-export const USE_DUMMY_OTP = import.meta.env.DEV || !isConfigured
+export const USE_DUMMY_OTP = import.meta.env.DEV || import.meta.env.VITE_USE_DUMMY_OTP === 'true' || !isConfigured
 
 export function formatPhone(phone) {
   const digits = phone.replace(/\D/g, '')
