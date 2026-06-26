@@ -8,6 +8,7 @@ import {
 import Wordmark from './Wordmark'
 import WhatsAppModal from './WhatsAppModal'
 import LangToggle from './LangToggle'
+import ThemeToggle from './ThemeToggle'
 import { useLang } from '../context/LanguageContext'
 
 function useCountUp(end, duration = 2000) {
@@ -84,35 +85,36 @@ const LandingPage = ({ onLogin, onRegister }) => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white selection:bg-saffron/20">
+    <div className="min-h-screen bg-white dark:bg-slate-900 selection:bg-saffron/20">
       {showWhatsApp && <WhatsAppModal onClose={() => setShowWhatsApp(false)} />}
 
       {/* ═══ HEADER ═══ */}
-      <header className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-100 z-50">
+      <header className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-14">
           <Wordmark />
           <nav className="hidden md:flex items-center gap-5">
-            <button onClick={() => nav('workers')} className="text-sm font-semibold text-slate-500 hover:text-navy transition-colors">{t('stat_workers')}</button>
-            <button onClick={() => nav('how')} className="text-sm font-semibold text-slate-500 hover:text-navy transition-colors">{t('nav_how')}</button>
-            <button onClick={() => nav('thekedar')} className="text-sm font-semibold text-slate-500 hover:text-navy transition-colors">{t('reg_contractor')}</button>
-            <button onClick={() => nav('faq')} className="text-sm font-semibold text-slate-500 hover:text-navy transition-colors">{t('nav_faq')}</button>
+            <button onClick={() => nav('workers')} className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition-colors">{t('stat_workers')}</button>
+            <button onClick={() => nav('how')} className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition-colors">{t('nav_how')}</button>
+            <button onClick={() => nav('thekedar')} className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition-colors">{t('reg_contractor')}</button>
+            <button onClick={() => nav('faq')} className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-navy dark:hover:text-white transition-colors">{t('nav_faq')}</button>
           </nav>
           <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <LangToggle />
-            <button onClick={onLogin} className="text-sm font-bold text-navy px-4 py-2 hover:bg-slate-50 rounded-lg transition-colors">{t('login_title')}</button>
+            <button onClick={onLogin} className="text-sm font-bold text-navy dark:text-white px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">{t('login_title')}</button>
             <button onClick={onRegister} className="text-sm font-bold bg-saffron hover:bg-orange-600 text-white px-5 py-2 rounded-lg shadow-sm transition-all active:scale-95">{t('hero_cta')}</button>
           </div>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-navy -mr-2">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-navy dark:text-white -mr-2">
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
         {mobileOpen && (
-          <div className="md:hidden border-t border-slate-100 px-4 py-3 space-y-2 bg-white">
-            <button onClick={() => nav('workers')} className="block w-full text-left font-semibold text-slate-600 py-2 text-sm">{t('stat_workers')}</button>
-            <button onClick={() => nav('how')} className="block w-full text-left font-semibold text-slate-600 py-2 text-sm">{t('nav_how')}</button>
-            <button onClick={() => nav('thekedar')} className="block w-full text-left font-semibold text-slate-600 py-2 text-sm">{t('reg_contractor')}</button>
-            <button onClick={() => nav('faq')} className="block w-full text-left font-semibold text-slate-600 py-2 text-sm">{t('nav_faq')}</button>
-            <div className="flex items-center gap-2 pt-2"><LangToggle /></div>
+          <div className="md:hidden border-t border-slate-100 dark:border-slate-800 px-4 py-3 space-y-2 bg-white dark:bg-slate-900">
+            <button onClick={() => nav('workers')} className="block w-full text-left font-semibold text-slate-600 dark:text-slate-300 py-2 text-sm">{t('stat_workers')}</button>
+            <button onClick={() => nav('how')} className="block w-full text-left font-semibold text-slate-600 dark:text-slate-300 py-2 text-sm">{t('nav_how')}</button>
+            <button onClick={() => nav('thekedar')} className="block w-full text-left font-semibold text-slate-600 dark:text-slate-300 py-2 text-sm">{t('reg_contractor')}</button>
+            <button onClick={() => nav('faq')} className="block w-full text-left font-semibold text-slate-600 dark:text-slate-300 py-2 text-sm">{t('nav_faq')}</button>
+            <div className="flex items-center gap-2 pt-2"><ThemeToggle /><LangToggle /></div>
             <div className="flex gap-2">
               <button onClick={() => { onLogin(); setMobileOpen(false) }} className="flex-1 py-2.5 border border-navy text-navy rounded-lg font-bold text-sm">{t('login_title')}</button>
               <button onClick={() => { onRegister(); setMobileOpen(false) }} className="flex-1 py-2.5 bg-saffron text-white rounded-lg font-bold text-sm">{t('hero_cta')}</button>
@@ -121,24 +123,24 @@ const LandingPage = ({ onLogin, onRegister }) => {
         )}
       </header>
 
-      {/* ═══ HERO ═══ (unchanged — user said it's good) */}
-      <section className="bg-gradient-to-b from-white to-slate-50">
+      {/* ═══ HERO ═══ */}
+      <section className="bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-16 md:pt-20 md:pb-28">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-[11px] font-bold tracking-wider mb-5 border border-green-100">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-[11px] font-bold tracking-wider mb-5 border border-green-100 dark:border-green-800">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
               {t('hero_badge')}
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-navy leading-[1.1] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-navy dark:text-white leading-[1.1] tracking-tight">
               {t('hero_title')}{' '}<span className="text-saffron">{t('hero_title_highlight')}</span>
             </h1>
-            <p className="mt-4 text-base md:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">{t('hero_subtitle')}</p>
+            <p className="mt-4 text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">{t('hero_subtitle')}</p>
             <div className="mt-8">
               <button onClick={onRegister} className="w-full sm:w-auto px-10 py-4 bg-saffron text-white rounded-xl font-bold text-base shadow-lg shadow-saffron/30 hover:bg-orange-600 transition-all active:scale-[0.97] flex items-center justify-center gap-2 mx-auto text-lg">
                 <UserPlus size={22} /> {t('hero_cta')}
               </button>
             </div>
-            <p className="mt-4 text-xs text-slate-400 flex items-center justify-center gap-3 flex-wrap">
+            <p className="mt-4 text-xs text-slate-400 dark:text-slate-500 flex items-center justify-center gap-3 flex-wrap">
               <span className="flex items-center gap-1"><CheckCircle2 size={12} className="text-green-500" /> {t('hero_verified')}</span>
               <span className="flex items-center gap-1"><CheckCircle2 size={12} className="text-green-500" /> {t('hero_free')}</span>
               <span className="flex items-center gap-1"><CheckCircle2 size={12} className="text-green-500" /> {t('hero_nashik')}</span>
@@ -146,19 +148,19 @@ const LandingPage = ({ onLogin, onRegister }) => {
             <div className="mt-6 flex items-center justify-center gap-1.5">
               <div className="flex -space-x-2">
                 {[1,2,3,4].map(i => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white overflow-hidden">
+                  <div key={i} className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-900 overflow-hidden">
                     <img src={`https://ui-avatars.com/api/?name=User+${i}&background=f97316&color=fff&size=32`} alt="" className="w-full h-full" />
                   </div>
                 ))}
               </div>
-              <span className="text-sm font-bold text-navy ml-1">{t('hero_count')} <span className="font-normal text-slate-400">{t('hero_workers_joined')}</span></span>
+              <span className="text-sm font-bold text-navy dark:text-white ml-1">{t('hero_count')} <span className="font-normal text-slate-400 dark:text-slate-500">{t('hero_workers_joined')}</span></span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ═══════ 1. TRUST BADGES MARQUEE ═══════ */}
-      <div className="border-y border-slate-100 bg-white overflow-hidden py-3">
+      <div className="border-y border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden py-3">
         <div className="animate-marquee flex gap-8 whitespace-nowrap">
           {[...Array(2)].flatMap(() => [
             { icon: Award, text: 'MSME Registered' },
@@ -178,11 +180,11 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </div>
 
       {/* ═══════ 2. ANIMATED STATS COUNTERS ═══════ */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-slate-50 to-white">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
           <div className="text-center mb-10">
             <span className="text-[11px] font-black tracking-[0.15em] uppercase text-saffron">{t('trust_label')} IN NUMBERS</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy mt-2">Nashik's Growing Workforce Platform</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">Nashik's Growing Workforce Platform</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
@@ -191,28 +193,28 @@ const LandingPage = ({ onLogin, onRegister }) => {
               { icon: Building, value: contractorsCount.count, label: t('stat_contractors'), suffix: '+', color: 'from-green-500 to-emerald-600' },
               { icon: MapPin, value: 1, label: 'City Active', suffix: '', color: 'from-purple-500 to-purple-600', display: 'Nashik' },
             ].map((s, i) => (
-              <div key={i} ref={s.display ? null : (s.icon === Users ? workersCount.ref : s.icon === Briefcase ? jobsCount.ref : contractorsCount.ref)} className={`bg-white rounded-2xl p-4 md:p-6 border border-slate-100 shadow-sm text-center hover:shadow-md transition-shadow ${i === 3 ? 'md:col-span-1' : ''}`}>
+              <div key={i} ref={s.display ? null : (s.icon === Users ? workersCount.ref : s.icon === Briefcase ? jobsCount.ref : contractorsCount.ref)} className={`bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 border border-slate-100 dark:border-slate-700 shadow-sm text-center hover:shadow-md transition-shadow ${i === 3 ? 'md:col-span-1' : ''}`}>
                 <div className={`w-12 h-12 bg-gradient-to-br ${s.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md`}>
                   <s.icon size={22} className="text-white" />
                 </div>
-                <p className="text-3xl md:text-4xl font-black text-navy">
+                <p className="text-3xl md:text-4xl font-black text-navy dark:text-white">
                   {s.display || s.value}
                   {s.suffix}
                 </p>
-                <p className="text-xs text-slate-400 font-semibold mt-1">{s.label}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════ 3. HOW IT WORKS — REDESIGNED ═══════ */}
-      <section id="how" className="py-16 md:py-20 bg-white">
+      {/* ═══════ 3. HOW IT WORKS ═══════ */}
+      <section id="how" className="py-16 md:py-20 bg-white dark:bg-slate-900">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="text-center mb-12">
             <span className="text-[11px] font-black tracking-[0.15em] uppercase text-saffron">{t('how_label')}</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy mt-2">{t('how_title')}</h2>
-            <p className="mt-3 text-sm text-slate-400 max-w-lg mx-auto">From chowk to job — 3 simple steps</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">{t('how_title')}</h2>
+            <p className="mt-3 text-sm text-slate-400 dark:text-slate-500 max-w-lg mx-auto">From chowk to job — 3 simple steps</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -242,15 +244,15 @@ const LandingPage = ({ onLogin, onRegister }) => {
                 shadow: 'shadow-green-500/10',
               },
             ].map((item, i) => (
-              <div key={i} className={`relative bg-slate-50 rounded-2xl p-6 md:p-8 border border-slate-100 hover:shadow-lg transition-all group ${i % 2 === 0 ? 'md:translate-y-0' : 'md:translate-y-8'}`}>
+              <div key={i} className={`relative bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-700 hover:shadow-lg dark:hover:shadow-slate-800/50 transition-all group ${i % 2 === 0 ? 'md:translate-y-0' : 'md:translate-y-8'}`}>
                 <div className="flex items-start gap-5">
                   <div className={`w-14 h-14 ${item.color} text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${item.shadow}`}>
                     <item.icon size={26} />
                   </div>
                   <div className="flex-1">
                     <span className="text-[10px] font-black tracking-widest text-saffron">{item.step}</span>
-                    <h3 className="text-lg font-bold text-navy mt-1">{item.title}</h3>
-                    <p className="text-sm text-slate-500 mt-1 leading-relaxed">{item.desc}</p>
+                    <h3 className="text-lg font-bold text-navy dark:text-white mt-1">{item.title}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
                 {/* Connecting line */}
@@ -265,7 +267,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
 
           {/* For Thekedar quick note */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 dark:text-slate-500">
               {t('reg_contractor')}?{' '}
               <button onClick={() => nav('thekedar')} className="text-saffron font-bold hover:underline">
                 See how Shramik helps you manage your team →
@@ -276,45 +278,45 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </section>
 
       {/* ═══════ 4. WORKER SHOWCASE ═══════ */}
-      <section id="workers" className="py-16 md:py-20 bg-slate-50">
+      <section id="workers" className="py-16 md:py-20 bg-slate-50 dark:bg-slate-800">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="text-center mb-10">
             <span className="text-[11px] font-black tracking-[0.15em] uppercase text-saffron">LIVE ON PLATFORM</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy mt-2">Skilled Workers Near You</h2>
-            <p className="mt-3 text-sm text-slate-400 max-w-lg mx-auto">These workers are available for hire right now in Nashik</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">Skilled Workers Near You</h2>
+            <p className="mt-3 text-sm text-slate-400 dark:text-slate-500 max-w-lg mx-auto">These workers are available for hire right now in Nashik</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {workers.map((w, i) => (
-              <div key={i} className={`bg-white rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all ${w.available ? 'border-green-100' : 'border-slate-100 opacity-75'}`}>
+              <div key={i} className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all ${w.available ? 'border-green-100 dark:border-green-900' : 'border-slate-100 dark:border-slate-700 opacity-75'}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-navy to-blue-700 text-white rounded-xl flex items-center justify-center text-lg font-black">
                     {w.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   {w.available ? (
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2.5 py-1 rounded-full">
                       <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse-dot" />
                       Available Now
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">On Job</span>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">On Job</span>
                   )}
                 </div>
-                <h3 className="text-base font-bold text-navy">{w.name}</h3>
-                <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                <h3 className="text-base font-bold text-navy dark:text-white">{w.name}</h3>
+                <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400">
                   <Wrench size={12} /> {w.skill}
                 </div>
-                <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+                <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 dark:text-slate-500">
                   <MapPin size={12} /> {w.chowk}
                 </div>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50 dark:border-slate-800">
                   <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
                     <Star size={12} fill="currentColor" /> {w.rating}
                   </div>
-                  <span className="text-[10px] text-slate-400">{w.jobs} jobs done</span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">{w.jobs} jobs done</span>
                 </div>
                 {w.verified && (
-                  <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-green-600">
+                  <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-green-600 dark:text-green-400">
                     <BadgeCheck size={11} /> Verified
                   </div>
                 )}
@@ -323,7 +325,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
           </div>
 
           <div className="text-center mt-8">
-            <button onClick={onRegister} className="inline-flex items-center gap-2 px-6 py-3 bg-white text-navy border-2 border-slate-200 rounded-xl font-bold text-sm hover:border-saffron/50 hover:text-saffron transition-all">
+            <button onClick={onRegister} className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-navy dark:text-white border-2 border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm hover:border-saffron/50 hover:text-saffron transition-all">
               <Search size={16} /> Browse All Workers
             </button>
           </div>
@@ -331,7 +333,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </section>
 
       {/* ═══════ 5. THEKEDAR SECTION ═══════ */}
-      <section id="thekedar" className="py-16 md:py-20 bg-navy text-white">
+      <section id="thekedar" className="py-16 md:py-20 bg-navy dark:bg-slate-950 text-white">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
@@ -417,16 +419,16 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </section>
 
       {/* ═══════ 6. WHATSAPP INTEGRATION ═══════ */}
-      <section className="py-16 md:py-20 bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      <section className="py-16 md:py-20 bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-green-950/30 dark:via-slate-900 dark:to-emerald-950/30">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
-              <span className="text-[11px] font-black tracking-[0.15em] uppercase text-green-600">WhatsApp</span>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-navy mt-2 leading-tight">
+              <span className="text-[11px] font-black tracking-[0.15em] uppercase text-green-600 dark:text-green-400">WhatsApp</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2 leading-tight">
                 Jobs Come to You on{' '}
                 <span className="text-green-500">WhatsApp</span>
               </h2>
-              <p className="mt-4 text-sm text-slate-500 leading-relaxed">
+              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                 No need to check the app every day. When a matching job is posted, you get an instant alert on WhatsApp. Just tap and apply.
               </p>
 
@@ -437,10 +439,10 @@ const LandingPage = ({ onLogin, onRegister }) => {
                   { icon: Share2, text: 'Share your profile with any contractor' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                      <item.icon size={16} className="text-green-600" />
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center shrink-0">
+                      <item.icon size={16} className="text-green-600 dark:text-green-400" />
                     </div>
-                    <span className="text-sm text-slate-600">{item.text}</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-300">{item.text}</span>
                   </div>
                 ))}
               </div>
@@ -452,7 +454,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
 
             {/* Phone mockup */}
             <div className="hidden md:flex justify-center">
-              <div className="w-64 bg-white rounded-3xl shadow-2xl border-4 border-slate-200 overflow-hidden">
+              <div className="w-64 bg-white dark:bg-slate-800 rounded-3xl shadow-2xl dark:shadow-slate-950 border-4 border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="bg-green-500 p-4 flex items-center gap-3">
                   <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white text-xs font-bold">S</div>
                   <div>
@@ -460,29 +462,29 @@ const LandingPage = ({ onLogin, onRegister }) => {
                     <p className="text-[10px] text-green-100">Online • 200+ workers</p>
                   </div>
                 </div>
-                <div className="p-4 space-y-2 min-h-[300px] bg-[#e8f4e8]">
-                  <div className="bg-white rounded-lg p-3 shadow-sm max-w-[80%]">
-                    <p className="text-xs font-bold text-navy">⚡ New Job Alert!</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Electrician needed at Ambad MIDC</p>
-                    <p className="text-[11px] font-bold text-green-600 mt-1">₹900/day</p>
+                <div className="p-4 space-y-2 min-h-[300px] bg-[#e8f4e8] dark:bg-slate-700">
+                  <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%]">
+                    <p className="text-xs font-bold text-navy dark:text-white">⚡ New Job Alert!</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Electrician needed at Ambad MIDC</p>
+                    <p className="text-[11px] font-bold text-green-600 dark:text-green-400 mt-1">₹900/day</p>
                   </div>
-                  <div className="bg-white rounded-lg p-3 shadow-sm max-w-[80%] ml-auto">
-                    <p className="text-[11px] text-slate-500">Great! I'm available</p>
+                  <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%] ml-auto">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300">Great! I'm available</p>
                   </div>
-                  <div className="bg-white rounded-lg p-3 shadow-sm max-w-[80%]">
-                    <p className="text-xs font-bold text-navy">🏗️ Urgent: 3 Masons needed</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Satpur MIDC, ₹850/day</p>
+                  <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%]">
+                    <p className="text-xs font-bold text-navy dark:text-white">🏗️ Urgent: 3 Masons needed</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Satpur MIDC, ₹850/day</p>
                     <div className="flex gap-2 mt-2">
                       <span className="text-[10px] font-bold bg-saffron text-white px-2 py-0.5 rounded-full">Apply</span>
-                      <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">View</span>
+                      <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-500 text-slate-500 dark:text-slate-200 px-2 py-0.5 rounded-full">View</span>
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg p-3 shadow-sm max-w-[80%] ml-auto">
-                    <p className="text-[11px] text-slate-500">Applied! 🙌</p>
+                  <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%] ml-auto">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300">Applied! 🙌</p>
                   </div>
                 </div>
-                <div className="p-3 border-t border-slate-100 flex items-center gap-2 bg-white">
-                  <input className="flex-1 bg-slate-50 rounded-full px-4 py-2 text-xs outline-none" placeholder="Type a message..." />
+                <div className="p-3 border-t border-slate-100 dark:border-slate-600 flex items-center gap-2 bg-white dark:bg-slate-800">
+                  <input className="flex-1 bg-slate-50 dark:bg-slate-700 rounded-full px-4 py-2 text-xs outline-none dark:text-white" placeholder="Type a message..." />
                   <div className="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center">
                     <MessageSquare size={16} className="text-white" />
                   </div>
@@ -494,15 +496,15 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </section>
 
       {/* ═══════ 7. TESTIMONIALS ═══════ */}
-      <section className="py-16 md:py-20 bg-white">
+      <section className="py-16 md:py-20 bg-white dark:bg-slate-900">
         <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
           <span className="text-[11px] font-black tracking-[0.15em] uppercase text-saffron">TESTIMONIALS</span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-navy mt-2">What People Say</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">What People Say</h2>
 
           <div className="mt-10 relative">
-            <div className="bg-slate-50 rounded-2xl p-6 md:p-10 border border-slate-100 max-w-xl mx-auto">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 md:p-10 border border-slate-100 dark:border-slate-700 max-w-xl mx-auto">
               <Quote size={32} className="text-saffron/20 mx-auto mb-4" />
-              <p className="text-sm md:text-base text-slate-600 leading-relaxed italic">
+              <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed italic">
                 "{testimonials[testimonialIndex].text}"
               </p>
               <div className="mt-6 flex items-center justify-center gap-3">
@@ -510,8 +512,8 @@ const LandingPage = ({ onLogin, onRegister }) => {
                   {testimonials[testimonialIndex].name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold text-navy">{testimonials[testimonialIndex].name}</p>
-                  <p className="text-[11px] text-slate-400">{testimonials[testimonialIndex].role}</p>
+                  <p className="text-sm font-bold text-navy dark:text-white">{testimonials[testimonialIndex].name}</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500">{testimonials[testimonialIndex].role}</p>
                 </div>
               </div>
               <div className="flex justify-center gap-1 mt-3">
@@ -527,7 +529,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
                 <button
                   key={i}
                   onClick={() => setTestimonialIndex(i)}
-                  className={`w-2 h-2 rounded-full transition-all ${i === testimonialIndex ? 'bg-saffron w-6' : 'bg-slate-200 hover:bg-slate-300'}`}
+                  className={`w-2 h-2 rounded-full transition-all ${i === testimonialIndex ? 'bg-saffron w-6' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'}`}
                 />
               ))}
             </div>
@@ -536,11 +538,11 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </section>
 
       {/* ═══════ 8. FAQ ═══════ */}
-      <section id="faq" className="py-16 md:py-20 bg-slate-50">
+      <section id="faq" className="py-16 md:py-20 bg-slate-50 dark:bg-slate-800">
         <div className="max-w-2xl mx-auto px-4 md:px-6">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy tracking-tight">{t('faq_title')}</h2>
-            <p className="text-sm text-slate-400 mt-2">Everything you need to know</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white tracking-tight">{t('faq_title')}</h2>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">Everything you need to know</p>
           </div>
           <div className="space-y-2">
             {[
@@ -550,13 +552,13 @@ const LandingPage = ({ onLogin, onRegister }) => {
               { q: t('faq_q4'), a: t('faq_a4') },
               { q: t('faq_q5'), a: t('faq_a5') },
             ].map((item, i) => (
-              <details key={i} className="group bg-white rounded-xl border border-slate-100 overflow-hidden hover:border-slate-200 transition-colors">
+              <details key={i} className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
                 <summary className="flex items-center justify-between p-4 md:p-5 cursor-pointer list-none">
-                  <span className="text-sm font-bold text-navy pr-4">{item.q}</span>
-                  <ChevronRight size={16} className="text-slate-300 shrink-0 group-open:rotate-90 transition-transform" />
+                  <span className="text-sm font-bold text-navy dark:text-white pr-4">{item.q}</span>
+                  <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 shrink-0 group-open:rotate-90 transition-transform" />
                 </summary>
                 <div className="px-4 md:px-5 pb-4 md:pb-5">
-                  <p className="text-sm text-slate-500 leading-relaxed">{item.a}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{item.a}</p>
                 </div>
               </details>
             ))}
@@ -565,7 +567,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
       </section>
 
       {/* ═══════ 9. CTA ═══════ */}
-      <section className="bg-gradient-to-br from-navy via-navy to-[#0a1e3d] text-white">
+      <section className="bg-gradient-to-br from-navy via-navy to-[#0a1e3d] dark:from-slate-900 dark:via-slate-950 dark:to-black text-white">
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-16 md:py-24 text-center">
           <div className="w-16 h-16 bg-saffron/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Users size={30} className="text-saffron" />

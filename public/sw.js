@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shramik-v4'
+const CACHE_NAME = 'shramik-v5'
 const STATIC_EXTENSIONS = /\.(js|css|html|png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|json)$/
 const API_DOMAINS = ['supabase.co', 'supabase.in']
 
@@ -17,6 +17,11 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url)
+
+  // Skip in dev — Vite HMR must not be cached
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return
+  }
 
   // Skip API calls — never cache Supabase or external API requests
   if (API_DOMAINS.some(d => url.hostname.includes(d))) {
