@@ -1,24 +1,44 @@
-const CACHE_NAME = 'shramik-v3'
+const CACHE_NAME = 'shramik-v1'
+const urlsToCache = [
+  '/',
+  '/manifest.json',
+  '/Shramik-Logo.png',
+]
 
-self.addEventListener('install', () => {
-  self.skipWaiting()
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache)
+    })
+  )
 })
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME) return caches.delete(name)
+        })
+      )
+    })
   )
-  return self.clients.claim()
 })
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    fetch(event.request).then((response) => {
-      const clone = response.clone()
-      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
-      return response
-    }).catch(() => caches.match(event.request))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request).then((fetchResponse) => {
+        if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
+          const responseClone = fetchResponse.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone)
+          })
+        }
+        return fetchResponse
+      })
+    }).catch(() => {
+      return caches.match('/')
+    })
   )
 })
