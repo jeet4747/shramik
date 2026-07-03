@@ -22,6 +22,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
   const [statsLoading, setStatsLoading] = useState(true)
   const [thekedarInfo, setThekedarInfo] = useState(null)
   const fileInputRef = useRef(null)
+  const avatarInputRef = useRef(null)
 
   const displayName = userData?.full_name || user?.full_name || t('User')
   const userInitials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
@@ -81,8 +82,8 @@ export default function Profile({ user, userData, setUserData, addToast }) {
             })
           }
         }
-      } catch {
-        // silent
+      } catch (err) {
+        console.error('Error loading profile stats:', err)
       } finally {
         if (mounted) setStatsLoading(false)
       }
@@ -371,7 +372,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
                 )}
               </div>
               <button
-                onClick={() => fileInputRef.current?.click()}
+                  onClick={() => avatarInputRef.current?.click()}
                 className="absolute -bottom-1 -right-1 w-8 h-8 bg-navy text-white rounded-full flex items-center justify-center shadow-md hover:bg-navy-light transition-colors"
                 title={t('Change Photo')}
               >
@@ -526,7 +527,6 @@ export default function Profile({ user, userData, setUserData, addToast }) {
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-600">{t('Profile Photo')}</label>
                       <input
-                        ref={fileInputRef}
                         name="photo"
                         type="file"
                         accept="image/*"
@@ -634,7 +634,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
 
       {/* Hidden file input for avatar upload trigger */}
       <input
-        ref={fileInputRef}
+        ref={avatarInputRef}
         type="file"
         accept="image/*"
         className="hidden"

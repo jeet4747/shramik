@@ -19,7 +19,8 @@ export default function WhatsAppModal({ onClose }) {
       await navigator.clipboard.writeText('https://shramikapp.in')
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {
+    } catch (err) {
+      console.error('Clipboard copy failed:', err)
       alert('लिंक कॉपी करण्यात अडचण आली. लिंक: https://shramikapp.in')
     }
   }

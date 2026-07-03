@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { supabase, isSupabaseReady } from './supabaseClient'
+import { supabase, isSupabaseReady, USE_DUMMY_OTP } from './supabaseClient'
 import { Toast } from './components/Toast'
 import { useToast } from './hooks/useToast'
 import Register from './components/Register'
@@ -41,33 +41,72 @@ export default function App() {
   const [available, setAvailable] = useState(true)
   const initialized = useRef(false)
 
-  // Restore session from localStorage on mount
+  // Initialize auth + session
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
 
-    const saved = localStorage.getItem('shramik_user')
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        setUser(parsed) // eslint-disable-line react-hooks/set-state-in-effect
-      } catch {
-        localStorage.removeItem('shramik_user')
+    const init = async () => {
+      // Try to restore Supabase session
+      const { data: { session } } = await supabase.auth.getSession()
+      const saved = localStorage.getItem('shramik_user')
+
+      if (session?.user) {
+        setUser({ id: session.user.id, phone: session.user.phone, role: null })
+        return
+      }
+
+      // Fallback: restore from localStorage (backward compat)
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved)
+          setUser(parsed)
+        } catch (err) {
+          console.error('Failed to parse stored user:', err)
+          localStorage.removeItem('shramik_user')
+        }
       }
     }
+    init()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser({ id: session.user.id, phone: session.user.phone, role: null })
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null)
+        setRole(null)
+        setUserData(null)
+        localStorage.removeItem('shramik_user')
+      }
+    })
+
+    return () => subscription?.unsubscribe()
   }, [])
 
   // Fetch user data from DB when user changes
   useEffect(() => {
-    if (!user) {
-      setRole(null) // eslint-disable-line react-hooks/set-state-in-effect
-      setUserData(null)
-      return
-    }
+    if (!user) return
 
     let cancelled = false
     const fetchData = async () => {
       try {
+        // Dev mode: use dummy data from localStorage instead of Supabase
+        if (USE_DUMMY_OTP) {
+          const raw = localStorage.getItem('shramik_dummy_data')
+          if (raw) {
+            const dummy = JSON.parse(raw)
+            if (!cancelled) {
+              setUserData(dummy)
+              if (dummy.role) {
+                setRole(dummy.role)
+                setActiveTab(dummy.role === 'admin' ? 'stats' : 'home')
+              }
+            }
+            return
+          }
+        }
+
         let { data } = await supabase
           .from('users')
           .select('*')
@@ -85,8 +124,6 @@ export default function App() {
         }
 
         if (data && !cancelled) {
-          // Use the role the user chose (from localStorage), not what DB says
-          // This ensures admin doesn't lose their role on refresh
           const role = user.role || data.role
           const session = { id: data.id, phone: data.phone, role }
           localStorage.setItem('shramik_user', JSON.stringify(session))
@@ -101,7 +138,7 @@ export default function App() {
           }
         }
       } catch {
-        // User record may not exist yet or DB issue
+        console.error('Failed to fetch user data')
       }
     }
     fetchData()
@@ -116,8 +153,8 @@ export default function App() {
     try {
       const { data } = await supabase.from('jobs').select('*')
       if (Array.isArray(data)) setRealJobs(data)
-    } catch {
-      // Silently fail
+    } catch (err) {
+      console.error('Error fetching jobs:', err)
     }
   }, [])
 
@@ -142,8 +179,8 @@ export default function App() {
           setOpenJobs(jobs)
         }
       }
-    } catch {
-      // Silently fail
+    } catch (err) {
+      console.error('Error fetching open jobs:', err)
     }
   }, [])
 
@@ -159,8 +196,8 @@ export default function App() {
         setMyApplications(data)
         setAcceptedJobs(data.map(a => a.job_id))
       }
-    } catch {
-      // Silently fail
+    } catch (err) {
+      console.error('Error fetching applications:', err)
     }
   }, [user])
 
@@ -174,12 +211,10 @@ export default function App() {
     fetchMyApplications()
   }, [fetchJobs, fetchOpenJobs, fetchMyApplications])
 
-  // Refresh applications when switching to mywork tab
-  useEffect(() => {
-    if (activeTab === 'mywork' && user) {
-      fetchMyApplications() // eslint-disable-line react-hooks/set-state-in-effect
-    }
-  }, [activeTab, user, fetchMyApplications])
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
+    if (tab === 'mywork' && user) fetchMyApplications()
+  }
 
   const setCurrentUser = (userData) => {
     const session = { id: userData.id, phone: userData.phone, role: userData.role }
@@ -210,14 +245,19 @@ export default function App() {
           setUser(session)
           setUserData(data)
         }
-      } catch {
-        // Ignore
+      } catch (err) {
+        console.error('Error updating role:', err)
       }
     }
     addToast(`Logged in as ${selectedRole}`, 'success')
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('Supabase signOut failed, proceeding with local logout:', err)
+    }
     localStorage.removeItem('shramik_user')
     setUser(null)
     setRole(null)
@@ -252,8 +292,8 @@ export default function App() {
     if (user) {
       try {
         await supabase.from('users').update({ available: !available }).eq('id', user.id)
-      } catch {
-        // Ignore
+      } catch (err) {
+        console.error('Error toggling availability:', err)
       }
     }
   }
@@ -293,8 +333,8 @@ export default function App() {
         </div>
       ) : (
         <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
-          <Sidebar role={role} activeTab={activeTab} onTabChange={setActiveTab} onLogout={logout} />
-          <MobileNav role={role} activeTab={activeTab} onTabChange={setActiveTab} onLogout={logout} />
+          <Sidebar role={role} activeTab={activeTab} onTabChange={handleTabChange} onLogout={logout} />
+          <MobileNav role={role} activeTab={activeTab} onTabChange={handleTabChange} onLogout={logout} />
 
           <main className="flex-1 h-screen overflow-y-auto pb-24 md:pb-0">
             <Header
@@ -327,7 +367,6 @@ export default function App() {
                   {activeTab === 'mywork' && (
                     <MyWork
                       applications={myApplications}
-                      user={user}
                       addToast={addToast}
                       onMarkComplete={fetchMyApplications}
                     />
@@ -355,7 +394,7 @@ export default function App() {
 
               {role === 'admin' && (
                 <>
-                  {activeTab === 'stats' && <AdminDashboard user={user} />}
+                  {activeTab === 'stats' && <AdminDashboard />}
                   {activeTab === 'verify' && <Verifications addToast={addToast} />}
                   {activeTab === 'activity' && <ActivityFeed />}
                   {activeTab === 'cities' && <CityCoverage />}

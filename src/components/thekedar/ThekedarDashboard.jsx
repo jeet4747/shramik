@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
-import { Users, Briefcase, Search, UserPlus, X, MapPin, Phone, Wrench, Clock, User } from 'lucide-react'
+import { Users, Briefcase, Search, UserPlus, X, MapPin, Phone, Wrench, Clock } from 'lucide-react'
 import { useLang } from '../../context/LanguageContext'
 import WhatsAppGroupBanner from '../worker/WhatsAppGroupBanner'
-
-const SKILLS_MR = {
-  electrician: 'इलेक्ट्रिशियन', plumber: 'प्लंबर', carpenter: 'सुतार',
-  painter: 'पेंटर', mason: 'मिस्त्री', welder: 'वेल्डर', driver: 'ड्रायव्हर', helper: 'हेल्पर',
-}
 
 export default function ThekedarDashboard({ user, addToast }) {
   const { t } = useLang()
@@ -15,8 +10,6 @@ export default function ThekedarDashboard({ user, addToast }) {
   const [team, setTeam] = useState([])
   const [workers, setWorkers] = useState([])
   const [showAddWorker, setShowAddWorker] = useState(false)
-  const [addTab, setAddTab] = useState('existing')
-  const [newUserForm, setNewUserForm] = useState({ full_name: '', phone: '', skill: '' })
   const [pendingInvites, setPendingInvites] = useState([])
 
   const fetchTeam = async () => {
@@ -53,10 +46,25 @@ export default function ThekedarDashboard({ user, addToast }) {
   }
 
   useEffect(() => {
-    fetchTeam()
-    fetchAvailableWorkers()
-    fetchPendingInvites()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let mounted = true
+    const init = async () => {
+      const [teamData, workersData, invitesData] = await Promise.all([
+        supabase.from('users').select('*').eq('thekedar_id', user.id).then(r => r.data),
+        (async () => {
+          const { data: allWorkers } = await supabase.from('users').select('*').eq('role', 'worker').is('thekedar_id', null)
+          const { data: existingInvites } = await supabase.from('team_invites').select('worker_id').eq('thekedar_id', user.id).in('status', ['pending', 'accepted'])
+          const invitedIds = new Set(existingInvites?.map(i => i.worker_id) || [])
+          return Array.isArray(allWorkers) ? allWorkers.filter(w => w.id !== user.id && !invitedIds.has(w.id)) : []
+        })(),
+        supabase.from('team_invites').select('*, worker:worker_id(full_name, phone, skill)').eq('thekedar_id', user.id).eq('status', 'pending').then(r => r.data),
+      ])
+      if (!mounted) return
+      if (Array.isArray(teamData)) setTeam(teamData)
+      if (Array.isArray(workersData)) setWorkers(workersData)
+      if (Array.isArray(invitesData)) setPendingInvites(invitesData)
+    }
+    init()
+    return () => { mounted = false }
   }, [user])
 
   const addToTeam = async (workerId) => {
@@ -95,28 +103,6 @@ export default function ThekedarDashboard({ user, addToast }) {
     addToast('Worker removed from team', 'info')
     fetchTeam()
     fetchAvailableWorkers()
-  }
-
-  const handleManualAdd = async (e) => {
-    e.preventDefault()
-    const id = crypto.randomUUID()
-    const payload = {
-      id,
-      full_name: newUserForm.full_name.trim(),
-      phone: newUserForm.phone.trim(),
-      role: 'worker',
-      skill: newUserForm.skill || null,
-      thekedar_id: user.id,
-      is_verified: false,
-    }
-
-    const { error } = await supabase.from('users').insert(payload)
-    if (error) { addToast(error.message, 'error'); return }
-    addToast('Worker registered and added to team', 'success')
-    setNewUserForm({ full_name: '', phone: '', skill: '' })
-    fetchTeam()
-    fetchAvailableWorkers()
-    setShowAddWorker(false)
   }
 
   return (
@@ -254,73 +240,27 @@ export default function ThekedarDashboard({ user, addToast }) {
               <button onClick={() => setShowAddWorker(false)} className="p-1 text-slate-300 hover:text-slate-500"><X size={18} /></button>
             </div>
 
-            {/* Tabs */}
-            <div className="flex p-2 gap-1 bg-slate-50 mx-4 mt-3 rounded-lg">
-              <button
-                onClick={() => setAddTab('existing')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${addTab === 'existing' ? 'bg-white text-navy shadow-sm' : 'text-slate-400'}`}
-              >
-                Existing
-              </button>
-              <button
-                onClick={() => setAddTab('new')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${addTab === 'new' ? 'bg-white text-navy shadow-sm' : 'text-slate-400'}`}
-              >
-                Add New
-              </button>
-            </div>
-
-            {addTab === 'existing' ? (
-              <div className="p-4 space-y-2">
-                {workers.filter(w => w.role === 'worker').length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center py-8">No workers available to add</p>
-                ) : (
-                  workers.filter(w => w.role === 'worker').map(w => (
-                    <div key={w.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                      <div>
-                        <p className="text-sm font-bold text-navy">{w.full_name}</p>
-                        <p className="text-xs text-slate-400">{w.skill || 'No skill'} — {w.phone}</p>
-                      </div>
-                      <button
-                        onClick={() => addToTeam(w.id)}
-                        className="px-3 py-1.5 bg-saffron text-white rounded-lg text-xs font-bold hover:bg-orange-600 transition-all"
-                      >
-                        Invite
-                      </button>
+            {/* Workers list */}
+            <div className="p-4 space-y-2">
+              {workers.filter(w => w.role === 'worker').length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-8">No workers available to add</p>
+              ) : (
+                workers.filter(w => w.role === 'worker').map(w => (
+                  <div key={w.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div>
+                      <p className="text-sm font-bold text-navy">{w.full_name}</p>
+                      <p className="text-xs text-slate-400">{w.skill || 'No skill'} — {w.phone}</p>
                     </div>
-                  ))
-                )}
-              </div>
-            ) : (
-              <form onSubmit={handleManualAdd} className="p-4 space-y-3">
-                <div className="relative">
-                  <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                  <input type="text" placeholder="Full name" value={newUserForm.full_name} onChange={e => setNewUserForm({ ...newUserForm, full_name: e.target.value })} required
-                    className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
-                </div>
-                <div className="relative">
-                  <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                  <input type="tel" placeholder="Phone number" value={newUserForm.phone} onChange={e => setNewUserForm({ ...newUserForm, phone: e.target.value })} required
-                    className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
-                </div>
-                <div className="relative">
-                  <Wrench size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                  <select value={newUserForm.skill} onChange={e => setNewUserForm({ ...newUserForm, skill: e.target.value })}
-                    className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy appearance-none bg-white cursor-pointer focus:border-navy/30 outline-none transition-colors"
-                  >
-                    <option value="">Select skill</option>
-                    {Object.entries(SKILLS_MR).map(([key, label]) => (
-                      <option key={key} value={label}>{label}</option>
-                    ))}
-                  </select>
-                </div>
-                <button type="submit" disabled={!newUserForm.full_name.trim() || newUserForm.phone.trim().length < 10}
-                  className="w-full py-3.5 bg-saffron hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-bold text-sm transition-all"
-                >
-                  Register & Add
-                </button>
-              </form>
-            )}
+                    <button
+                      onClick={() => addToTeam(w.id)}
+                      className="px-3 py-1.5 bg-saffron text-white rounded-lg text-xs font-bold hover:bg-orange-600 transition-all"
+                    >
+                      Invite
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}

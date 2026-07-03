@@ -4,12 +4,10 @@ import { MessageSquare, ExternalLink, X } from 'lucide-react'
 
 export default function WhatsAppGroupBanner({ city }) {
   const [group, setGroup] = useState(null)
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(() => city ? !!localStorage.getItem(`wa_dismissed_${city}`) : false)
 
   useEffect(() => {
-    if (!city) return
-    const saved = localStorage.getItem(`wa_dismissed_${city}`)
-    if (saved) { setDismissed(true); return }
+    if (!city || dismissed) return
     supabase
       .from('whatsapp_groups')
       .select('*')
@@ -19,6 +17,7 @@ export default function WhatsAppGroupBanner({ city }) {
       .then(({ data }) => {
         if (data && data.length > 0) setGroup(data[0])
       })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city])
 
   if (!group || dismissed) return null

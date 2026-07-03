@@ -23,7 +23,8 @@ export default function MyJobs({ user, jobs, onJobsUpdated, addToast }) {
         .eq('status', 'applied')
         .order('id', { ascending: true })
       setApplications(data || [])
-    } catch {
+    } catch (err) {
+      console.error('Error fetching applications:', err)
       setApplications([])
     } finally {
       setLoadingApps(false)

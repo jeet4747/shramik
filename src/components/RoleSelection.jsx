@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Hammer, Briefcase, ArrowRight, ShieldCheck, X } from 'lucide-react';
+import { supabase } from '../supabaseClient';
 
 const RoleSelection = ({ onSelect }) => {
   const [showAdminCode, setShowAdminCode] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [codeError, setCodeError] = useState('');
+  const [codeLoading, setCodeLoading] = useState(false);
 
   const handleAdminClick = () => {
     setShowAdminCode(true);
@@ -12,14 +14,22 @@ const RoleSelection = ({ onSelect }) => {
     setCodeError('');
   };
 
-  const ADMIN_CODE = import.meta.env.VITE_ADMIN_CODE
-
-  const handleAdminCodeSubmit = () => {
-    if (adminCode.trim() === ADMIN_CODE) {
-      setShowAdminCode(false);
-      onSelect('admin');
-    } else {
-      setCodeError('Invalid admin code');
+  const handleAdminCodeSubmit = async () => {
+    setCodeLoading(true);
+    setCodeError('');
+    try {
+      const { data: valid, error } = await supabase.rpc('verify_admin_code', { input_code: adminCode.trim() });
+      if (error) throw error;
+      if (valid) {
+        setShowAdminCode(false);
+        onSelect('admin');
+      } else {
+        setCodeError('Invalid admin code');
+      }
+    } catch (err) {
+      setCodeError(err.message || 'Failed to verify admin code');
+    } finally {
+      setCodeLoading(false);
     }
   };
   return (
@@ -99,9 +109,10 @@ const RoleSelection = ({ onSelect }) => {
             {codeError && <p className="text-xs text-red-500 mb-4">{codeError}</p>}
             <button
               onClick={handleAdminCodeSubmit}
-              className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-colors"
+              disabled={codeLoading || !adminCode.trim()}
+              className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 text-white rounded-xl font-bold transition-colors"
             >
-              Verify Code
+              {codeLoading ? 'Verifying...' : 'Verify Code'}
             </button>
           </div>
         </div>

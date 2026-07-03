@@ -1,14 +1,11 @@
-const CACHE_NAME = 'shramik-v1'
-const urlsToCache = [
-  '/',
-  '/manifest.json',
-  '/Shramik-Logo.png',
-]
+const CACHE_NAME = 'shramik-v5'
+const STATIC_EXTENSIONS = /\.(js|css|html|png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|json)$/
+const API_DOMAINS = ['supabase.co', 'supabase.in']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache)
+      return cache.addAll(['/', '/manifest.json', '/Shramik-Logo.png'])
     })
   )
 })
@@ -26,19 +23,20 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url)
+
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return
+  if (API_DOMAINS.some(d => url.hostname.includes(d))) return
+  if (!STATIC_EXTENSIONS.test(url.pathname)) return
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchResponse) => {
-        if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
-          const responseClone = fetchResponse.clone()
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone)
-          })
-        }
-        return fetchResponse
-      })
-    }).catch(() => {
-      return caches.match('/')
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached
+      return fetch(event.request).then((response) => {
+        const clone = response.clone()
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        return response
+      }).catch(() => caches.match(event.request))
     })
   )
 })
