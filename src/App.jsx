@@ -302,7 +302,7 @@ export default function App() {
     <div className="min-h-screen bg-bg">
       <Toast toasts={toasts} removeToast={removeToast} />
       <InstallBanner />
-      {!isSupabaseReady && (
+      {!isSupabaseReady && !USE_DUMMY_OTP && (
         <div style={{background:'#dc2626',color:'white',padding:'16px',textAlign:'center',fontSize:'14px',zIndex:99999}}>
           Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel env vars and redeploy.
         </div>
