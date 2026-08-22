@@ -2,7 +2,7 @@ export const workerProfile = {
   name: "Ramesh Kumar",
   initials: "RK",
   phone: "9876543210",
-  location: "Nashik Road, Nashik",
+  location: "Pune Railway Station, Pune",
   experience: 3,
   jobsDone: 47,
   rating: 4.7,
@@ -18,7 +18,7 @@ export const nearbyJobs = [
     title: "Wiring Work – 2BHK Flat",
     contractor: "Suresh Constructions",
     verified: true,
-    location: "Nashik Road",
+    location: "Pune Station",
     distance: "1.2 km",
     pay: 800,
     skills: ["Electrician", "Wiring"],
@@ -36,7 +36,7 @@ export const nearbyJobs = [
   {
     id: 3,
     title: "Solar Panel Installation",
-    contractor: "GreenBuild Nashik",
+    contractor: "GreenBuild Pune",
     verified: false,
     location: "Satpur MIDC",
     distance: "3.8 km",
@@ -75,7 +75,7 @@ export const myJobs = [
   {
     id: 3,
     title: "MCB Panel Fitting",
-    contractor: "GreenBuild Nashik",
+    contractor: "GreenBuild Pune",
     date: "22 Apr 2026",
     pay: 950,
     status: "Ongoing",
@@ -138,7 +138,7 @@ export const workerPool = [
 
 export const contractorJobs = [
   { id: 1, title: "Full Wiring – Phase 2 Flats", skill: "Electrician", applicants: 4, status: "Active", location: "Gangapur Road" },
-  { id: 2, title: "Plumbing – Block B & C", skill: "Plumber", applicants: 2, status: "Active", location: "Nashik Road" },
+  { id: 2, title: "Plumbing – Block B & C", skill: "Plumber", applicants: 2, status: "Active", location: "Pune Station" },
   { id: 3, title: "Carpenter Work – Site Office", skill: "Carpenter", applicants: 1, status: "Paused", location: "Satpur MIDC" },
 ];
 
@@ -165,7 +165,7 @@ export const hiredWorkers = [
 ];
 
 export const pendingVerifications = [
-  { id: 1, name: "Ankit Bhosale", skill: "Electrician", location: "Nashik Road", submitted: "21 Apr 2026", status: "Pending" },
+  { id: 1, name: "Ankit Bhosale", skill: "Electrician", location: "Pune Station", submitted: "21 Apr 2026", status: "Pending" },
   { id: 2, name: "Sachin Wagh", skill: "Plumber", location: "Gangapur Road", submitted: "20 Apr 2026", status: "Pending" },
   { id: 3, name: "Raju Jagtap", skill: "Helper", location: "Ozar", submitted: "19 Apr 2026", status: "Pending" },
   { id: 4, name: "Priya Sonawane", skill: "Painter", location: "Deolali", submitted: "18 Apr 2026", status: "Pending" },
@@ -173,7 +173,7 @@ export const pendingVerifications = [
 ];
 
 export const activityFeed = [
-  { id: 1, text: "Ramesh Kumar ne Nashik mein wiring job accept ki", time: "2 min ago", type: "job" },
+  { id: 1, text: "Ramesh Kumar ne Pune mein wiring job accept ki", time: "2 min ago", type: "job" },
   { id: 2, text: "New contractor registered: Apex Build Solutions", time: "15 min ago", type: "contractor" },
   { id: 3, text: "Manoj Yadav ka verification approved", time: "32 min ago", type: "verify" },
   { id: 4, text: "Suresh Constructions ne 3 workers hire kiye", time: "1 hr ago", type: "hire" },
@@ -184,7 +184,7 @@ export const activityFeed = [
 ];
 
 export const cityData = [
-  { city: "Nashik", emoji: "🟢", status: "Active", workers: 1240, jobs: 34 },
+  { city: "Pune", emoji: "🟢", status: "Active", workers: 1240, jobs: 34 },
   { city: "Pune", emoji: "🟡", status: "Coming Soon", workers: null, jobs: null },
   { city: "Mumbai", emoji: "🟡", status: "Coming Soon", workers: null, jobs: null },
   { city: "Aurangabad", emoji: "⚪", status: "Planned", workers: null, jobs: null },

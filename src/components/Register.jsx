@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { supabase, formatPhone, USE_DUMMY_OTP } from "../supabaseClient";
-import { User, Phone, MapPin, Wrench, X, ArrowRight, Check, Users, ChevronDown, MessageSquare } from "lucide-react";
+import { User, Phone, MapPin, Wrench, X, ArrowRight, Check, Users, ChevronDown, MessageSquare, CreditCard, FileText } from "lucide-react";
 import { useLang } from "../context/LanguageContext";
 
 const SKILLS_KEY = ['electrician', 'plumber', 'carpenter', 'painter', 'mason', 'welder', 'driver', 'helper', 'other'];
 
 const CITIES = {
-  'Nashik': ['Nashik MIDC', 'Ambad MIDC', 'Satpur MIDC', 'Gangapur Road', 'Panchavati', 'CIDCO', 'Trimbak Road', 'Dindori Road', 'College Road', 'Mhasrul', 'Dwarka', 'Indira Nagar', 'Bhadrakali', 'Ravivar Karanja', 'Other'],
-  'Pune': ['Hinjewadi', 'Bhosari', 'Chinchwad', 'Pimpri', 'Hadapsar', 'Kharadi', 'Baner', 'Wagholi', 'Shivajinagar', 'Katraj', 'Swargate', 'Kondhwa', 'Other'],
+  'Pune': ['Hadapsar', 'Kharadi', 'Wagholi', 'Hinjewadi', 'Baner', 'Wakad', 'Pimpri', 'Chinchwad', 'Bhosari MIDC', 'Chakan MIDC', 'Talegaon MIDC', 'Ranjangaon MIDC', 'Moshi', 'Shivajinagar', 'Katraj', 'Swargate', 'Kondhwa', 'Yerawada', 'Viman Nagar', 'Other'],
+  'Nashik': ['Nashik MIDC', 'Ambad MIDC', 'Satpur MIDC', 'Gangapur Road', 'Panchavati', 'CIDCO', 'Other'],
 };
 
 export default function Register({ onClose, onSuccess }) {
   const { t } = useLang();
   const [step, setStep] = useState('form');
   const [formData, setFormData] = useState({
-    full_name: "", phone: "", role: "worker", skill: "", city: "Nashik", chowk: "",
+    full_name: "", phone: "", role: "worker", skill: "", city: "Pune", chowk: "",
+    aadhaar_number: "", pan_number: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,6 +41,8 @@ export default function Register({ onClose, onSuccess }) {
 
   const isValidPhone = (phone) => /^[6-9]\d{9}$/.test(phone.replace(/\D/g, ''));
   const isValidName = (name) => name.trim().length >= 2 && name.trim().length <= 100;
+  const isValidAadhaar = (a) => /^\d{12}$/.test(a.replace(/[\s-]/g, ''));
+  const isValidPAN = (p) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(p.trim().toUpperCase());
 
   const sendOtp = async (e) => {
     e.preventDefault();
@@ -51,6 +54,14 @@ export default function Register({ onClose, onSuccess }) {
     }
     if (!isValidPhone(formData.phone)) {
       setError("Enter a valid 10-digit Indian mobile number");
+      return;
+    }
+    if (!isValidAadhaar(formData.aadhaar_number)) {
+      setError("Enter a valid 12-digit Aadhaar number");
+      return;
+    }
+    if (!isValidPAN(formData.pan_number)) {
+      setError("Enter a valid PAN (e.g. ABCDE1234F)");
       return;
     }
 
@@ -73,6 +84,8 @@ export default function Register({ onClose, onSuccess }) {
             skill: formData.role === 'worker' ? formData.skill.trim() : null,
             city: formData.city.trim(),
             chowk: formData.role === 'worker' ? formData.chowk : null,
+            aadhaar_number: formData.aadhaar_number.replace(/[\s-]/g, ''),
+            pan_number: formData.pan_number.trim().toUpperCase(),
           },
         },
       });
@@ -115,6 +128,8 @@ export default function Register({ onClose, onSuccess }) {
           id: dummyId, phone: formData.phone, full_name: formData.full_name,
           role: formData.role, skill: formData.skill || null, city: formData.city,
           chowk: formData.chowk || null, is_verified: false, available: true,
+          aadhaar_number: formData.aadhaar_number.replace(/[\s-]/g, ''),
+          pan_number: formData.pan_number.trim().toUpperCase(),
         }
         localStorage.setItem("shramik_user", JSON.stringify({ id: dummyId, phone: formData.phone, role: formData.role }))
         localStorage.setItem("shramik_dummy_data", JSON.stringify(dummyData))
@@ -159,6 +174,8 @@ export default function Register({ onClose, onSuccess }) {
             skill: formData.role === 'worker' ? formData.skill.trim() : null,
             city: formData.city.trim(),
             chowk: formData.role === 'worker' ? formData.chowk : null,
+            aadhaar_number: formData.aadhaar_number.replace(/[\s-]/g, ''),
+            pan_number: formData.pan_number.trim().toUpperCase(),
           },
         },
       });
@@ -218,6 +235,20 @@ export default function Register({ onClose, onSuccess }) {
                 <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
                 <input type="tel" name="phone" placeholder={t('reg_phone_placeholder')} value={formData.phone} onChange={handleChange} required maxLength={10}
                   className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
+              </div>
+
+              <div className="relative">
+                <CreditCard size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                <input type="tel" name="aadhaar_number" placeholder="आधार क्रमांक (12 अंकी)" value={formData.aadhaar_number}
+                  onChange={(e) => setFormData({ ...formData, aadhaar_number: e.target.value.replace(/\D/g, '') })} required maxLength={12} inputMode="numeric"
+                  className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-navy placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
+              </div>
+
+              <div className="relative">
+                <FileText size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                <input type="text" name="pan_number" placeholder="पॅन कार्ड (ABCDE1234F)" value={formData.pan_number}
+                  onChange={(e) => setFormData({ ...formData, pan_number: e.target.value.toUpperCase() })} required maxLength={10}
+                  className="w-full pl-9 pr-3 py-3 border border-slate-200 rounded-xl text-sm font-semibold uppercase text-navy placeholder:normal-case placeholder:text-slate-300 focus:border-navy/30 outline-none transition-colors" />
               </div>
 
               {/* City selector */}
@@ -282,7 +313,7 @@ export default function Register({ onClose, onSuccess }) {
                 </>
               )}
 
-              <button type="submit" disabled={isLoading || cooldown > 0 || !isValidPhone(formData.phone) || !isValidName(formData.full_name)}
+              <button type="submit" disabled={isLoading || cooldown > 0 || !isValidPhone(formData.phone) || !isValidName(formData.full_name) || !isValidAadhaar(formData.aadhaar_number) || !isValidPAN(formData.pan_number)}
                 className="w-full py-3.5 bg-saffron hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md"
               >
                 {isLoading ? (

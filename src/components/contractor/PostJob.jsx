@@ -100,7 +100,7 @@ export default function PostJob({ user, onJobPosted, addToast }) {
               <input
                 name="location"
                 type="text"
-                placeholder="e.g. Nashik Road"
+                placeholder="e.g. Hadapsar, Pune Station"
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
                 className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${errors.location ? 'border-red-300' : 'border-slate-200'} focus:ring-2 focus:ring-navy`}

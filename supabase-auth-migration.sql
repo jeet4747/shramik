@@ -6,7 +6,11 @@
 -- 1. Add auth.uid() references and ensure id matches auth.users
 -- (public.users.id will now be the auth.uid() UUID)
 
--- 2. Trigger: auto-create public.users row when a new auth user signs up
+-- 2. KYC columns on users (Aadhaar + PAN, collected at registration)
+alter table public.users add column if not exists aadhaar_number text;
+alter table public.users add column if not exists pan_number text;
+
+-- 3. Trigger: auto-create public.users row when a new auth user signs up
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -17,7 +21,7 @@ declare
   meta jsonb := new.raw_user_meta_data;
   user_phone text := coalesce(new.phone, new.raw_user_meta_data ->> 'phone');
 begin
-  insert into public.users (id, phone, full_name, role, skill, city, chowk, is_verified)
+  insert into public.users (id, phone, full_name, role, skill, city, chowk, is_verified, aadhaar_number, pan_number)
   values (
     new.id,
     user_phone,
@@ -26,7 +30,9 @@ begin
     meta ->> 'skill',
     meta ->> 'city',
     meta ->> 'chowk',
-    false
+    false,
+    nullif(trim(meta ->> 'aadhaar_number'), ''),
+    nullif(trim(meta ->> 'pan_number'), '')
   )
   on conflict (id) do update set
     phone = excluded.phone,

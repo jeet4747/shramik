@@ -43,16 +43,16 @@ function useCountUp(end, duration = 2000) {
 }
 
 const workers = [
-  { name: 'Rajesh Patil', skill: 'इलेक्ट्रिशियन', chowk: 'Nashik MIDC', rating: 4.8, jobs: 47, available: true, verified: true },
-  { name: 'Suresh Gaikwad', skill: 'प्लंबर', chowk: 'Ambad MIDC', rating: 4.6, jobs: 32, available: true, verified: true },
-  { name: 'Mahesh Jadhav', skill: 'मिस्त्री', chowk: 'Satpur MIDC', rating: 4.9, jobs: 58, available: false, verified: true },
-  { name: 'Anil Pawar', skill: 'सुतार', chowk: 'Gangapur Road', rating: 4.7, jobs: 41, available: true, verified: true },
+  { name: 'Rajesh Patil', skill: 'इलेक्ट्रिशियन', chowk: 'Hadapsar', rating: 4.8, jobs: 47, available: true, verified: true },
+  { name: 'Suresh Gaikwad', skill: 'प्लंबर', chowk: 'Chakan MIDC', rating: 4.6, jobs: 32, available: true, verified: true },
+  { name: 'Mahesh Jadhav', skill: 'मिस्त्री', chowk: 'Bhosari MIDC', rating: 4.9, jobs: 58, available: false, verified: true },
+  { name: 'Anil Pawar', skill: 'सुतार', chowk: 'Wagholi', rating: 4.7, jobs: 41, available: true, verified: true },
 ]
 
 const testimonials = [
-  { name: 'Rajesh Patil', role: 'Electrician, Nashik MIDC', text: 'Pehle roz subah chowk pe khade rehte the. Ab Shramik se ghar baithe job milti hai. Bahut accha hai.', rating: 5 },
-  { name: 'Vijay Thekedar', role: 'Contractor, Ambad MIDC', text: 'Meri team ab Shramik pe hai. Naye workers bhi mil jaate hai jab zaroorat hoti hai. Time bachta hai.', rating: 5 },
-  { name: 'Suresh Gaikwad', role: 'Plumber, Nashik', text: 'WhatsApp pe job alert aata hai aur direct apply karte hai. Koi commission nahi, koi tension nahi.', rating: 5 },
+  { name: 'Rajesh Patil', role: 'Electrician, Hadapsar', text: 'Pehle roz subah chowk pe khade rehte the. Ab Shramik se ghar baithe job milti hai. Bahut accha hai.', rating: 5 },
+  { name: 'Vijay Thekedar', role: 'Contractor, Chakan MIDC', text: 'Meri team ab Shramik pe hai. Naye workers bhi mil jaate hai jab zaroorat hoti hai. Time bachta hai.', rating: 5 },
+  { name: 'Suresh Gaikwad', role: 'Plumber, Pune', text: 'WhatsApp pe job alert aata hai aur direct apply karte hai. Koi commission nahi, koi tension nahi.', rating: 5 },
 ]
 
 const thekedarBenefits = [
@@ -168,7 +168,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
             { icon: BadgeCheck, text: 'Aadhaar Verified' },
             { icon: Users, text: '200+ Workers' },
             { icon: Building, text: '15+ Contractors' },
-            { icon: MapPin, text: 'Nashik Based' },
+            { icon: MapPin, text: 'Pune Based' },
             { icon: Star, text: '4.8 ⭐ Rating' },
           ]).map((item, i) => (
             <span key={i} className="inline-flex items-center gap-2 text-xs font-bold text-slate-500">
@@ -184,14 +184,14 @@ const LandingPage = ({ onLogin, onRegister }) => {
         <div className="max-w-5xl mx-auto px-4 md:px-6">
           <div className="text-center mb-10">
             <span className="text-[11px] font-black tracking-[0.15em] uppercase text-saffron">{t('trust_label')} IN NUMBERS</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">Nashik's Growing Workforce Platform</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">Pune's Growing Workforce Platform</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
               { icon: Users, value: workersCount.count, label: t('stat_workers'), suffix: '+', color: 'from-blue-500 to-blue-600' },
               { icon: Briefcase, value: jobsCount.count, label: t('stat_jobs'), suffix: '+', color: 'from-saffron to-orange-600' },
               { icon: Building, value: contractorsCount.count, label: t('stat_contractors'), suffix: '+', color: 'from-green-500 to-emerald-600' },
-              { icon: MapPin, value: 1, label: 'City Active', suffix: '', color: 'from-purple-500 to-purple-600', display: 'Nashik' },
+              { icon: MapPin, value: 1, label: 'City Active', suffix: '', color: 'from-purple-500 to-purple-600', display: 'Pune' },
             ].map((s, i) => (
               <div key={i} ref={s.display ? null : (s.icon === Users ? workersCount.ref : s.icon === Briefcase ? jobsCount.ref : contractorsCount.ref)} className={`bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 border border-slate-100 dark:border-slate-700 shadow-sm text-center hover:shadow-md transition-shadow ${i === 3 ? 'md:col-span-1' : ''}`}>
                 <div className={`w-12 h-12 bg-gradient-to-br ${s.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md`}>
@@ -283,7 +283,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
           <div className="text-center mb-10">
             <span className="text-[11px] font-black tracking-[0.15em] uppercase text-saffron">LIVE ON PLATFORM</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-navy dark:text-white mt-2">Skilled Workers Near You</h2>
-            <p className="mt-3 text-sm text-slate-400 dark:text-slate-500 max-w-lg mx-auto">These workers are available for hire right now in Nashik</p>
+            <p className="mt-3 text-sm text-slate-400 dark:text-slate-500 max-w-lg mx-auto">These workers are available for hire right now in Pune</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -465,7 +465,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
                 <div className="p-4 space-y-2 min-h-[300px] bg-[#e8f4e8] dark:bg-slate-700">
                   <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%]">
                     <p className="text-xs font-bold text-navy dark:text-white">⚡ New Job Alert!</p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Electrician needed at Ambad MIDC</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Electrician needed at Chakan MIDC</p>
                     <p className="text-[11px] font-bold text-green-600 dark:text-green-400 mt-1">₹900/day</p>
                   </div>
                   <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%] ml-auto">
@@ -473,7 +473,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
                   </div>
                   <div className="bg-white dark:bg-slate-600 rounded-lg p-3 shadow-sm max-w-[80%]">
                     <p className="text-xs font-bold text-navy dark:text-white">🏗️ Urgent: 3 Masons needed</p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Satpur MIDC, ₹850/day</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Bhosari MIDC, ₹850/day</p>
                     <div className="flex gap-2 mt-2">
                       <span className="text-[10px] font-bold bg-saffron text-white px-2 py-0.5 rounded-full">Apply</span>
                       <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-500 text-slate-500 dark:text-slate-200 px-2 py-0.5 rounded-full">View</span>
@@ -604,7 +604,7 @@ const LandingPage = ({ onLogin, onRegister }) => {
             </div>
             <div className="flex gap-6 text-xs text-white/30">
               <span>MSME Registered</span>
-              <span>Nashik, Maharashtra</span>
+              <span>Pune, Maharashtra</span>
               <span>&copy; 2026</span>
             </div>
           </div>

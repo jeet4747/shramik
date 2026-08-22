@@ -174,7 +174,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
   }
 
   const shareOnWhatsApp = () => {
-    const text = `${t('I am on Shramik!')} 🛠️\n${t('Name')}: ${displayName}\n${t('Skill')}: ${userData?.skill || t('Skilled Worker')}\n${t('Area')}: ${userData?.chowk || userData?.city || 'Nashik'}\n${t('Contractors can hire me directly on Shramik.')}`
+    const text = `${t('I am on Shramik!')} 🛠️\n${t('Name')}: ${displayName}\n${t('Skill')}: ${userData?.skill || t('Skilled Worker')}\n${t('Area')}: ${userData?.chowk || userData?.city || 'Pune'}\n${t('Contractors can hire me directly on Shramik.')}`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -491,7 +491,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
                           name="city"
                           type="text"
                           defaultValue={userData?.city || ''}
-                          placeholder={t('Nashik')}
+                          placeholder={t('Pune')}
                           className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy focus:border-navy outline-none transition-all text-sm"
                         />
                       </div>
@@ -516,7 +516,7 @@ export default function Profile({ user, userData, setUserData, addToast }) {
                               name="chowk"
                               type="text"
                               defaultValue={userData?.chowk || ''}
-                              placeholder={t('e.g. Nashik Road, Gangapur')}
+                              placeholder={t('e.g. Hadapsar, Kharadi')}
                               className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-navy focus:border-navy outline-none transition-all text-sm"
                             />
                           </div>

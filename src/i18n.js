@@ -7,14 +7,14 @@ const en = {
   nav_english: 'English',
 
   // Hero
-  hero_badge: 'Live in Nashik! Register in 3 seconds',
+  hero_badge: 'Live in Pune! Register in 3 seconds',
   hero_title: 'Looking for Work?',
   hero_title_highlight: 'Join Shramik',
-  hero_subtitle: 'No fees. No agents. Just you and your skill. 200+ workers in Nashik already joined.',
+  hero_subtitle: 'No fees. No agents. Just you and your skill. 200+ workers in Pune already joined.',
   hero_cta: 'Register Free — 2 Minutes',
   hero_verified: 'Aadhaar Verified',
   hero_free: 'No Fees',
-  hero_nashik: 'Nashik Based',
+  hero_nashik: 'Pune Based',
   hero_count: '200+',
   hero_workers_joined: 'workers joined',
 
@@ -22,7 +22,7 @@ const en = {
   stat_value_workers: '200+',
   stat_value_jobs: '50+',
   stat_value_contractors: '15+',
-  stat_value_city: 'Nashik',
+  stat_value_city: 'Pune',
   stat_workers: 'Workers',
   stat_jobs: 'Jobs Available',
   stat_contractors: 'Contractors',
@@ -54,7 +54,7 @@ const en = {
   trust_item3_title: 'Easy to Use',
   trust_item3_desc: 'Works on any smartphone. Even on slow internet.',
   trust_item4_title: 'Local Jobs',
-  trust_item4_desc: 'Contractors in Nashik give work near your area.',
+  trust_item4_desc: 'Contractors in Pune give work near your area.',
 
   // FAQ
   faq_title: 'Frequently Asked Questions',
@@ -64,21 +64,21 @@ const en = {
   faq_a2: 'No. Completely free for workers. We never ask for money.',
   faq_q3: 'How will I get work?',
   faq_a3: 'You will get job alerts based on your skill. You can also search jobs on the website.',
-  faq_q4: 'Is this only for Nashik?',
-  faq_a4: 'Yes, currently only in Nashik. Other cities coming soon.',
+  faq_q4: 'Is this only for Pune?',
+  faq_a4: 'Yes, currently live in Pune. Other cities coming soon.',
   faq_q5: 'How do contractors post jobs?',
   faq_a5: 'Contractors also register for free and post the work they need.',
 
   // CTA section
   cta_title: 'Register on',
   cta_title_highlight: 'Shramik',
-  cta_subtitle: 'Register in 2 minutes. No fees. Nashik contractors will find you.',
+  cta_subtitle: 'Register in 2 minutes. No fees. Pune contractors will find you.',
   cta_btn: 'Register Free',
   cta_login: 'Already registered?',
   cta_login_link: 'Sign In',
 
   // Footer
-  footer_text: '© 2026 Shramik. MSME Registered. Nashik, Maharashtra',
+  footer_text: '© 2026 Shramik. MSME Registered. Pune, Maharashtra',
 
   // Register Modal
   reg_title: 'Register Free',
@@ -166,14 +166,14 @@ const mr = {
   nav_marathi: 'मराठी',
   nav_english: 'English',
 
-  hero_badge: 'नाशिक मध्ये सुरू! फक्त ३ सेकंदात रजिस्टर',
+  hero_badge: 'पुणे मध्ये सुरू! फक्त ३ सेकंदात रजिस्टर',
   hero_title: 'काम हवंय का?',
   hero_title_highlight: 'Shramik जॉईन करा',
-  hero_subtitle: 'कोणतेही शुल्क नाही. एजंट नाही. फक्त तुम्ही आणि तुमचे कौशल्य. नाशिकमधील २००+ कामगार आधीच जॉईन झाले आहेत.',
+  hero_subtitle: 'कोणतेही शुल्क नाही. एजंट नाही. फक्त तुम्ही आणि तुमचे कौशल्य. पुण्यामधील २००+ कामगार आधीच जॉईन झाले आहेत.',
   hero_cta: 'फ्री रजिस्टर करा — २ मिनिटात',
   hero_verified: 'आधार वेरिफाइड',
   hero_free: 'कोणतेही शुल्क नाही',
-  hero_nashik: 'नाशिक मध्ये सुरू',
+  hero_nashik: 'पुणे मध्ये सुरू',
   hero_count: '२००+',
   hero_workers_joined: 'कामगार जॉइन झाले',
 
@@ -181,7 +181,7 @@ const mr = {
   stat_value_workers: '२००+',
   stat_value_jobs: '५०+',
   stat_value_contractors: '१५+',
-  stat_value_city: 'नाशिक',
+  stat_value_city: 'पुणे',
   stat_workers: 'कामगार',
   stat_jobs: 'जॉब उपलब्ध',
   stat_contractors: 'कॉन्ट्रॅक्टर',
@@ -210,7 +210,7 @@ const mr = {
   trust_item3_title: 'सोपे वापर',
   trust_item3_desc: 'कोणत्याही स्मार्टफोन वर चालते. हळू इंटरनेट वर ही चालेल.',
   trust_item4_title: 'तुमच्या जवळचे काम',
-  trust_item4_desc: 'नाशिकमधील कॉन्ट्रॅक्टर तुमच्या जवळच काम देतात.',
+  trust_item4_desc: 'पुण्यामधील कॉन्ट्रॅक्टर तुमच्या जवळच काम देतात.',
 
   faq_title: 'वारंवार विचारले जाणारे प्रश्न',
   faq_q1: 'रजिस्टर करण्यासाठी काय लागतं?',
@@ -219,19 +219,19 @@ const mr = {
   faq_a2: 'नाही. कामगारांसाठी पूर्णपणे फ्री. कधीही कोणतेही पैसे मागितले जाणार नाहीत.',
   faq_q3: 'मला काम कसं मिळेल?',
   faq_a3: 'तुमच्या स्किलनुसार तुम्हाला जॉब अलर्ट मिळतील. तुम्ही वेबसाइट वर जाऊन जॉब सर्च ही करू शकता.',
-  faq_q4: 'हे फक्त नाशिकसाठी आहे का?',
-  faq_a4: 'होय, सध्या फक्त नाशिकमध्ये सुरू आहे. लवकरच इतर शहरात सुरू होईल.',
+  faq_q4: 'हे फक्त पुण्यासाठी आहे का?',
+  faq_a4: 'होय, सध्या पुण्यामध्ये सुरू आहे. लवकरच इतर शहरांत सुरू होईल.',
   faq_q5: 'कॉन्ट्रॅक्टर कसे जॉब पोस्ट करतील?',
   faq_a5: 'कॉन्ट्रॅक्टर सुद्धा फ्री रजिस्टर करतात आणि त्यांना हवे ते काम पोस्ट करतात.',
 
   cta_title: 'आजच',
   cta_title_highlight: 'Shramik वर रजिस्टर करा',
-  cta_subtitle: '२ मिनिटात रजिस्टर करा. कोणतेही शुल्क नाही. नाशिकमधील कॉन्ट्रॅक्टर तुम्हाला शोधतील.',
+  cta_subtitle: '२ मिनिटात रजिस्टर करा. कोणतेही शुल्क नाही. पुण्यामधील कॉन्ट्रॅक्टर तुम्हाला शोधतील.',
   cta_btn: 'फ्री रजिस्टर करा',
   cta_login: 'आधीच रजिस्टर केलं आहे?',
   cta_login_link: 'साइन इन करा',
 
-  footer_text: '© २०२६ Shramik. MSME Registered. नाशिक, महाराष्ट्र',
+  footer_text: '© २०२६ Shramik. MSME Registered. पुणे, महाराष्ट्र',
 
   reg_title: 'फ्री रजिस्टर',
   reg_subtitle: '२ मिनिटात रजिस्टर करा. कोणतेही शुल्क नाही.',

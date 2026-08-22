@@ -94,7 +94,7 @@ export default function WorkerDashboard({ user, userData, openJobs, acceptedJobs
     const text = `I am on Shramik! 🛠️
 Name: ${displayName}
 Skill: ${userData?.skill || 'Skilled Worker'}
-Area: ${userData?.chowk || userData?.city || 'Nashik'}
+Area: ${userData?.chowk || userData?.city || 'Pune'}
 Contractors can hire me directly on Shramik.`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
@@ -220,7 +220,7 @@ Contractors can hire me directly on Shramik.`
       </div>
 
       {/* WhatsApp Group */}
-      <WhatsAppGroupBanner city={userData?.city || 'Nashik'} />
+      <WhatsAppGroupBanner city={userData?.city || 'Pune'} />
 
       {/* Jobs */}
       <section>

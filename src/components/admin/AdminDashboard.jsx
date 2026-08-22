@@ -6,10 +6,10 @@ import { CardSkeleton } from '../shared/LoadingSkeleton'
 import ErrorState from '../shared/ErrorState'
 
 const TRADES = ['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Mason', 'Welder', 'Driver', 'Helper']
-const CITIES = ['Nashik', 'Pune']
+const CITIES = ['Pune', 'Nashik']
 const CHOWKS = {
   'Nashik': ['Nashik MIDC', 'Ambad MIDC', 'Satpur MIDC', 'Panchavati', 'Gangapur Road', 'CIDCO'],
-  'Pune': ['Hinjewadi', 'Bhosari', 'Chinchwad', 'Pimpri', 'Hadapsar', 'Kharadi'],
+  'Pune': ['Hadapsar', 'Kharadi', 'Wagholi', 'Chakan MIDC', 'Bhosari MIDC', 'Hinjewadi', 'Baner', 'Viman Nagar'],
 }
 
 export default function AdminDashboard() {
@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [seedMsg, setSeedMsg] = useState(null)
   const [showDemoForm, setShowDemoForm] = useState(false)
   const [demoForm, setDemoForm] = useState({
-    title: '', trade: TRADES[0], city: 'Nashik', chowk: CHOWKS['Nashik'][0], pay: '800'
+    title: '', trade: TRADES[0], city: 'Pune', chowk: CHOWKS['Pune'][0], pay: '800'
   })
 
   useEffect(() => {

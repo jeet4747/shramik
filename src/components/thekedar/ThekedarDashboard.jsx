@@ -107,7 +107,7 @@ export default function ThekedarDashboard({ user, addToast }) {
 
   return (
     <>
-      <WhatsAppGroupBanner city="Nashik" />
+      <WhatsAppGroupBanner city="Pune" />
       <div className="space-y-4">
       {/* Tab bar */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl max-w-md">
@@ -211,7 +211,7 @@ export default function ThekedarDashboard({ user, addToast }) {
                       <p className="text-sm font-bold text-navy">{w.full_name}</p>
                       <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
                         {w.skill && <span className="flex items-center gap-1"><Wrench size={12} /> {w.skill}</span>}
-                        <span className="flex items-center gap-1"><MapPin size={12} /> {w.city || 'Nashik'}</span>
+                        <span className="flex items-center gap-1"><MapPin size={12} /> {w.city || 'Pune'}</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${w.available !== false ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
                           {                          w.available !== false ? t('th_available') : t('th_busy')}
                         </span>

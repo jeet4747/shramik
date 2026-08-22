@@ -82,7 +82,7 @@ export default function ContractorDashboard({ user, userData }) {
       </div>
 
       {/* WhatsApp Group */}
-      <WhatsAppGroupBanner city={userData?.city || 'Nashik'} />
+      <WhatsAppGroupBanner city={userData?.city || 'Pune'} />
 
       {/* Recent Jobs */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
